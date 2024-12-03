@@ -96,7 +96,26 @@ class SpedProcessor():
         formatted_lines = self.df.apply(lambda row: '|' + '|'.join(row.dropna().astype(str)), axis=1)
 
         result = '\n'.join(formatted_lines)
+        
         return result
+
+    def verificacao_a170(self):
+        self.verificacao = None
+        if (self.df[0]=='A170').any():
+            self.verificacao = True
+        else:
+            self.verificacao = False
+        
+        if self.verificacao == False:
+
+            self.df = self.df.loc[(self.df[0] != 'C100')&(self.df[0] != 'M100')]
+            st.success('O arquivo não possui dados na rubrica "A170"... As Rubricas "C100" e "M100" foram removidas!')
+
+        return self.df
+
+
+
+
     def main(self):
         
         uploaded_files = st.sidebar.file_uploader("Escolha os arquivos SPED", type=['txt'], accept_multiple_files=True)
@@ -120,6 +139,7 @@ class SpedProcessor():
                     df = sped_processor.lendoELimpandoDadosSped(file_path)
 
                     df_alterado = sped_processor.alteracoes_txt()
+                    verificando = sped_processor.verificacao_a170()
                     conteudo_txt = sped_processor.devolvendo_txt()
 
                     df_comparativo = tabelas_de_apuração(df)
@@ -170,6 +190,7 @@ class SpedProcessor():
                 st.dataframe(arquivo_comparativo_alterado_final)
 
 if __name__ == '__main__':
+    
     pisConfins = SpedProcessor()
     pisConfins.main()
 
