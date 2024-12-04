@@ -39,9 +39,15 @@ class TabelasPISConfins(SpedProcessor):
 
        # Econtrando dados nos dataframes primearios(M200, M600, M210, M610)
         data = self.arquivo_m210["Data"].values
+
         base_calculo_nao_cumulativo = self.arquivo_m210.iloc[:,[1,6,-1]]
         base_calculo_cumulativo = self.arquivo_m210.iloc[:,[1,6,-1]]
         base_calculo_rf = self.arquivo_m210.iloc[:,[1,6,-1]]
+
+        base_calculo_cumulativo['Vlr Base Cálculo Contribuição Após Ajustes'] = base_calculo_cumulativo['Vlr Base Cálculo Contribuição Após Ajustes'].replace('','0')
+
+
+
         ajuste_acrescimo_pis = self.arquivo_m210.iloc[:,[11,-1]]
         ajuste_acrescimo_confins = self.arquivo_m610.iloc[:,[11,-1]]
         
@@ -61,7 +67,7 @@ class TabelasPISConfins(SpedProcessor):
 
 
         base_calculo_nao_cumulativo = verificacao_dados_vazios(base_calculo_nao_cumulativo,'01',1,'BASE DE CALCULO Não Cumulativo')
-        base_calculo_cumulativo = verificacao_dados_vazios(base_calculo_nao_cumulativo, '51', 1,'BASE DE CALCULO Cumulativo')
+        base_calculo_cumulativo = verificacao_dados_vazios(base_calculo_cumulativo, '51', 1,'BASE DE CALCULO Cumulativo')
         base_calculo_rf = verificacao_dados_vazios(base_calculo_rf, '02', 1,'BASE DE CALCULO Receita Financeira')
 
 
@@ -72,12 +78,15 @@ class TabelasPISConfins(SpedProcessor):
 
         self.tabela_base_valors['Competência'] = data
 
+
         self.tabela_base_valors = mesclando_dados(base_calculo_nao_cumulativo,
                                                    'Vlr Base Cálculo Contribuição Após Ajustes',
                                                    'BASE DE CALCULO Não Cumulativo',1)
+
         self.tabela_base_valors = mesclando_dados(base_calculo_cumulativo,
                                                   'Vlr Base Cálculo Contribuição Após Ajustes',
                                                     'BASE DE CALCULO Cumulativo',1)
+        
         self.tabela_base_valors = mesclando_dados(base_calculo_rf,'Vlr Base Cálculo Contribuição Após Ajustes'
                                                         ,'BASE DE CALCULO Receita Financeira',1)
         
@@ -126,9 +135,13 @@ class TabelasPISConfins(SpedProcessor):
             if row['BASE DE CALCULO Receita Financeira'] != 0 else 0, axis=1)
 
         self.tabela_base_valors = pd.merge(self.tabela_base_valors,ajuste_acrescimo_pis, left_on='Competência', right_on='Data').iloc[:,:-1].rename(columns={'Vlr Total Ajustes Acréscimo':'Ajuste de acréscimo PIS'})
+        
+        self.tabela_base_valors['Ajuste de acréscimo PIS'] = self.tabela_base_valors['Ajuste de acréscimo PIS'].replace('','0').fillna(0).replace(np.nan,0)
         self.tabela_base_valors['Ajuste de acréscimo PIS'] = self.tabela_base_valors['Ajuste de acréscimo PIS'].astype(str).str.replace(',','.').astype(float)
         
         self.tabela_base_valors = pd.merge(self.tabela_base_valors,ajuste_acrescimo_confins, left_on='Competência', right_on='Data').iloc[:,:-1].rename(columns={'Vlr Total Ajustes Acréscimo':'Ajuste de acréscimo CONFINS'})
+        
+        self.tabela_base_valors['Ajuste de acréscimo CONFINS'] = self.tabela_base_valors['Ajuste de acréscimo CONFINS'].replace('','0').fillna(0).replace(np.nan,0)
         self.tabela_base_valors['Ajuste de acréscimo CONFINS'] = self.tabela_base_valors['Ajuste de acréscimo CONFINS'].astype(str).str.replace(',','.').astype(float)
   
 
@@ -172,7 +185,7 @@ class TabelasPISConfins(SpedProcessor):
                                                         self.tabela_base_valors['Competência'].str.slice(4, 8)
 
         self.tabela_base_valors['Competência'] = pd.to_datetime(self.tabela_base_valors['Competência'], format='%d-%m-%Y')
-
+        self.tabela_base_valors.sort_values(by='Competência',inplace=True)
         st.dataframe(self.tabela_base_valors)
     
 
@@ -240,16 +253,15 @@ class TabelasPISConfins(SpedProcessor):
 
 
     def valores_futuros(self):
-        # Copy the base table
+
         tabela_base_para_calculos_futuros = self.tabela_base_valors.copy()
 
-        # Columns for calculating the rolling average
         colunas_media_por_quatro = ['Crédito PIS', 'Crédito CONFINS']
 
         tabela_base_para_calculos_futuros.reset_index(drop=True, inplace=True)
 
 
-        tabela_base_para_calculos_futuros = tabela_base_para_calculos_futuros.iloc[4:, :].reset_index(drop=True)
+        tabela_base_para_calculos_futuros = tabela_base_para_calculos_futuros.iloc[[-4,-3,-2,-1], :].reset_index(drop=True)
 
         tabela_base_para_calculos_futuros['Competência'] = tabela_base_para_calculos_futuros['Competência'].astype(str)
 
@@ -311,6 +323,7 @@ class TabelasPISConfins(SpedProcessor):
         'Renteções_confins',                  
         'Crédito PIS',                        
         'Crédito CONFINS'] 
+
         
         for i in colunas_base_calculos:
             tabela_base_para_calculos_futuros.at[4,i] = (tabela_base_para_calculos_futuros.at[0,i]+tabela_base_para_calculos_futuros.at[2,i]+
