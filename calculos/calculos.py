@@ -15,6 +15,7 @@ class TabelasPISConfins(SpedProcessor):
         self.tabela_base_valors = pd.DataFrame({ 'Competência': []})
 
     def base_valores(self) -> pd.DataFrame:
+        
 
         def mesclando_dados(df2,columna_original: str, columna_nova:str, colunas_base_filtro:str)-> pd.DataFrame:
 
@@ -51,11 +52,12 @@ class TabelasPISConfins(SpedProcessor):
         ajuste_acrescimo_pis = self.arquivo_m210.iloc[:,[11,-1]]
         ajuste_acrescimo_confins = self.arquivo_m610.iloc[:,[11,-1]]
         
-        retencoes_pis = self.arquivo_m200.iloc[:,[6,9,-1]]
+        retencoes_pis = self.arquivo_m200.iloc[:,[5,9,-1]]
         retencoes_pis['Vlr Retido Fonte Cumulativa Deduzida Período'] = retencoes_pis['Vlr Retido Fonte Cumulativa Deduzida Período'].astype(str).str.replace(',','.').astype(float)
-        retencoes_pis['Vlr Outras Deduções NC Período'] = retencoes_pis['Vlr Outras Deduções NC Período'].astype(str).str.replace(',','.').astype(float)
-        retencoes_pis['Renteções_pis'] = (retencoes_pis['Vlr Outras Deduções NC Período'] + 
+        retencoes_pis['Vlr Retido Fonte NC Deduzida Período'] = retencoes_pis['Vlr Retido Fonte NC Deduzida Período'].astype(str).str.replace(',','.').astype(float)
+        retencoes_pis['Renteções_pis'] = (retencoes_pis['Vlr Retido Fonte NC Deduzida Período'] + 
                                                     retencoes_pis['Vlr Retido Fonte Cumulativa Deduzida Período'])
+        
         retencoes_pis = retencoes_pis.iloc[:,[-1,-2]] 
 
         retencoes_confins = self.arquivo_m600.iloc[:,[5,9,-1]]
@@ -165,11 +167,11 @@ class TabelasPISConfins(SpedProcessor):
                                                 self.tabela_base_valors['Crédito PIS'] + self.tabela_base_valors['Crédito CONFINS'])
 
         self.tabela_base_valors['PIS A PAGAR EFD'] = (self.tabela_base_valors['Débito PIS Não Cumulativo 1,65%'] + self.tabela_base_valors['Débito PIS Cumulativo 0,65%'] +
-                                                        self.tabela_base_valors['Débito PIS Receita Financeira 0,65%'] + self.tabela_base_valors['Ajuste de acréscimo PIS'] +
+                                                        self.tabela_base_valors['Débito PIS Receita Financeira 0,65%'] + self.tabela_base_valors['Ajuste de acréscimo PIS'] -
                                                         self.tabela_base_valors['Renteções_pis'] - self.tabela_base_valors['Crédito PIS'])
 
         self.tabela_base_valors['COFINS A PAGAR EFD'] = (self.tabela_base_valors['Débito COFINS Não Cumulativo 7,60%'] + self.tabela_base_valors['Débito COFINS Cumulativo 3,00%'] +
-                                                        self.tabela_base_valors['Débito COFINS Cumulativo 4,00%'] + self.tabela_base_valors['Ajuste de acréscimo CONFINS'] +
+                                                        self.tabela_base_valors['Débito COFINS Cumulativo 4,00%'] + self.tabela_base_valors['Ajuste de acréscimo CONFINS'] -
                                                         self.tabela_base_valors['Renteções_confins'] - self.tabela_base_valors['Crédito CONFINS'])
 
         self.tabela_base_valors['Imposto Apurado'] = self.tabela_base_valors['PIS A PAGAR EFD'] + self.tabela_base_valors['COFINS A PAGAR EFD']
@@ -188,7 +190,6 @@ class TabelasPISConfins(SpedProcessor):
         self.tabela_base_valors.sort_values(by='Competência',inplace=True)
         st.dataframe(self.tabela_base_valors)
     
-
 
     def calculos_valores_futuros(self,tabela_base_para_calculos_futuros):
                 
@@ -335,11 +336,11 @@ class TabelasPISConfins(SpedProcessor):
         for _ in range(59):
             tabela_base_para_calculos_futuros = pd.concat([tabela_base_para_calculos_futuros, ultima_linha], ignore_index=True)
         
-        for coluna in colunas_media_por_quatro:
-            for linha_atual in range(4, len(tabela_base_para_calculos_futuros)):
-                tabela_base_para_calculos_futuros.at[linha_atual, coluna] = tabela_base_para_calculos_futuros.loc[
-                    linha_atual - 4:linha_atual - 1, coluna
-                ].mean()
+        # for coluna in colunas_media_por_quatro:
+        #     for linha_atual in range(4, len(tabela_base_para_calculos_futuros)):
+        #         tabela_base_para_calculos_futuros.at[linha_atual, coluna] = tabela_base_para_calculos_futuros.loc[
+        #             linha_atual - 4:linha_atual - 1, coluna
+        #         ].mean()
                 
         tabela_base_para_calculos_futuros = self.calculos_valores_futuros(tabela_base_para_calculos_futuros)
 
