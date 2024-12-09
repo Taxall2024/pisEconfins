@@ -3,16 +3,30 @@ import os
 import sys
 import pandas as pd 
 import numpy as np
+import base64
 
+
+
+
+st.set_page_config(layout='wide')
+background_image ="pisEconfins/Untitleddesign.jpg"
+st.markdown(
+     f"""
+     <iframe src="data:image/jpg;base64,{base64.b64encode(open(background_image, 'rb').read()).decode(
+
+    )}" style="width:4000px;height:3000px;position: absolute;top:-3vh;right:-1250px;opacity: 0.5;background-size: cover;background-position: center;"></iframe>
+     """,
+     unsafe_allow_html=True )
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from TratamentoTXT.sped import SpedProcessor
-st.set_page_config(layout='wide')
+
 class TabelasPISConfins(SpedProcessor):
     
     def __init__(self):
         super().__init__()
         self.tabela_base_valors = pd.DataFrame({ 'Competência': []})
+        self.col1,self.col2 = st.columns(2)
 
     def base_valores(self) -> pd.DataFrame:
         
@@ -188,7 +202,10 @@ class TabelasPISConfins(SpedProcessor):
 
         self.tabela_base_valors['Competência'] = pd.to_datetime(self.tabela_base_valors['Competência'], format='%d-%m-%Y')
         self.tabela_base_valors.sort_values(by='Competência',inplace=True)
-        st.dataframe(self.tabela_base_valors)
+
+        with self.col1:
+            st.subheader('Tabela Base de Valores')
+            st.dataframe(self.tabela_base_valors)
     
 
     def calculos_valores_futuros(self,tabela_base_para_calculos_futuros):
@@ -358,9 +375,9 @@ class TabelasPISConfins(SpedProcessor):
         self.tabela_valores_futuros = tabela_base_para_calculos_futuros.copy()
 
 
-
-        st.subheader('Tabela para calculos futuros')
-        st.dataframe(tabela_base_para_calculos_futuros)
+        with self.col1:
+            st.subheader('Tabela para calculos futuros')
+            st.dataframe(tabela_base_para_calculos_futuros)
 
     def tabela_agregada(self):
         tabela_final = pd.concat([self.tabela_base_valors, self.tabela_valores_futuros], ignore_index=True).drop_duplicates(subset=['Competência'], keep='last').rename(
@@ -395,12 +412,12 @@ class TabelasPISConfins(SpedProcessor):
         total_geral['Ano'] = 'Total Geral'
         tabela_agregada = pd.concat([tabela_agregada, total_geral.to_frame().T], ignore_index=True)
 
+        with self.col2:
+            st.subheader('Tabela Agregada')
+            st.dataframe(tabela_final)
 
-        st.subheader('Tabela Agregada')
-        st.dataframe(tabela_final)
-
-        st.subheader('Tabela Agregada por Ano')
-        st.dataframe(tabela_agregada)
+            st.subheader('Tabela Agregada por Ano')
+            st.dataframe(tabela_agregada)
 
         
         tabela_comparativa = tabela_agregada.copy()
@@ -422,34 +439,44 @@ class TabelasPISConfins(SpedProcessor):
         
         print(tabela_final.info())
 
+    def main(self):
+        try:
+            uploaded_files = st.sidebar.file_uploader("Escolha os arquivos SPED", type=['txt'], accept_multiple_files=True)
+            file_paths = []
+            if uploaded_files:
+
+
+                for uploaded_file in uploaded_files:
+                    file_path = uploaded_file.name
+                    with open(file_path, 'wb') as f:
+                        f.write(uploaded_file.getbuffer())
+                    file_paths.append(file_path)
+
+            for file_path in file_paths:
+                self.lendoELimpandoDadosSped(file_path)
+                self.guardando_tabelas()
+            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')            
+            print(f"Número de arquivos a serem processados: {len(file_paths)}")       
+                    
+                
+            m200, m600, m210, m610 = self.tabelando_dados()
+            
+            # st.subheader('M210')
+            # st.dataframe(m210)
+            self.base_valores()
+            self.valores_futuros()
+            self.tabela_agregada()
+
+            # Remover os arquivos após o processamento
+            for file_path in file_paths:
+                os.remove(file_path)
+        except Exception as e:
+            print('Erro:', e)
+
+
 
 if __name__ == '__main__':
-    uploaded_files = st.sidebar.file_uploader("Escolha os arquivos SPED", type=['txt'], accept_multiple_files=True)
-    file_paths = []
-    if uploaded_files:
-        sped_processor = TabelasPISConfins()  # Instância única do SpedProcessor
 
-        for uploaded_file in uploaded_files:
-            file_path = uploaded_file.name
-            with open(file_path, 'wb') as f:
-                f.write(uploaded_file.getbuffer())
-            file_paths.append(file_path)
 
-    for file_path in file_paths:
-        sped_processor.lendoELimpandoDadosSped(file_path)
-        sped_processor.guardando_tabelas()
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')            
-    print(f"Número de arquivos a serem processados: {len(file_paths)}")       
-            
-        
-    m200, m600, m210, m610 = sped_processor.tabelando_dados()
-    
-    # st.subheader('M210')
-    # st.dataframe(m210)
-    sped_processor.base_valores()
-    sped_processor.valores_futuros()
-    sped_processor.tabela_agregada()
-
-    # Remover os arquivos após o processamento
-    for file_path in file_paths:
-        os.remove(file_path)
+    main = TabelasPISConfins()
+    main.main()  
