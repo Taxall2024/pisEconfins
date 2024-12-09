@@ -9,7 +9,7 @@ import base64
 
 
 st.set_page_config(layout='wide')
-background_image ="pisEconfins/Untitleddesign.jpg"
+background_image ="Untitleddesign.jpg"
 st.markdown(
      f"""
      <iframe src="data:image/jpg;base64,{base64.b64encode(open(background_image, 'rb').read()).decode(
