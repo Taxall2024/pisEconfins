@@ -20,7 +20,8 @@ class SpedProcessor:
                     valores = linha.split('|')[1:]
                     data.append(valores)
 
-        self.df = pd.DataFrame(data)#.iloc[:, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1]]
+        self.df = pd.DataFrame(data)
+        
         self.df['Data'] = self.df.iloc[0, 5]
         return self.df
     
