@@ -15,7 +15,6 @@ class TabelasPISConfins(SpedProcessor):
         self.tabela_base_valors = pd.DataFrame({ 'Competência': []})
 
     def base_valores(self) -> pd.DataFrame:
-        
 
         def mesclando_dados(df2,columna_original: str, columna_nova:str, colunas_base_filtro:str)-> pd.DataFrame:
 
@@ -48,9 +47,9 @@ class TabelasPISConfins(SpedProcessor):
         base_calculo_cumulativo['Vlr Base Cálculo Contribuição Após Ajustes'] = base_calculo_cumulativo['Vlr Base Cálculo Contribuição Após Ajustes'].replace('','0')
 
 
+        ajuste_acrescimo_pis = self.arquivo_m210.iloc[:,[12,-1]]
+        ajuste_acrescimo_confins = self.arquivo_m610.iloc[:,[12,-1]]
 
-        ajuste_acrescimo_pis = self.arquivo_m210.iloc[:,[11,-1]]
-        ajuste_acrescimo_confins = self.arquivo_m610.iloc[:,[11,-1]]
         
         retencoes_pis = self.arquivo_m200.iloc[:,[5,9,-1]]
         retencoes_pis['Vlr Retido Fonte Cumulativa Deduzida Período'] = retencoes_pis['Vlr Retido Fonte Cumulativa Deduzida Período'].astype(str).str.replace(',','.').astype(float)
@@ -136,13 +135,13 @@ class TabelasPISConfins(SpedProcessor):
             lambda row: ((row['Débito PIS Receita Financeira 0,65%'] + row['Débito COFINS Cumulativo 4,00%']) / row['BASE DE CALCULO Receita Financeira']) * 100
             if row['BASE DE CALCULO Receita Financeira'] != 0 else 0, axis=1)
 
-        self.tabela_base_valors = pd.merge(self.tabela_base_valors,ajuste_acrescimo_pis, left_on='Competência', right_on='Data').iloc[:,:-1].rename(columns={'Vlr Total Ajustes Acréscimo':'Ajuste de acréscimo PIS'})
+        self.tabela_base_valors = pd.merge(self.tabela_base_valors,ajuste_acrescimo_pis, left_on='Competência', right_on='Data').iloc[:,:-1].rename(columns={'Vlr Total Ajustes Redução':'Ajuste de acréscimo PIS'})
         
         self.tabela_base_valors['Ajuste de acréscimo PIS'] = self.tabela_base_valors['Ajuste de acréscimo PIS'].replace('','0').fillna(0).replace(np.nan,0)
         self.tabela_base_valors['Ajuste de acréscimo PIS'] = self.tabela_base_valors['Ajuste de acréscimo PIS'].astype(str).str.replace(',','.').astype(float)
         
-        self.tabela_base_valors = pd.merge(self.tabela_base_valors,ajuste_acrescimo_confins, left_on='Competência', right_on='Data').iloc[:,:-1].rename(columns={'Vlr Total Ajustes Acréscimo':'Ajuste de acréscimo CONFINS'})
-        
+        self.tabela_base_valors = pd.merge(self.tabela_base_valors,ajuste_acrescimo_confins, left_on='Competência', right_on='Data').iloc[:,:-1].rename(columns={'Vlr Total Ajustes Redução':'Ajuste de acréscimo CONFINS'})
+
         self.tabela_base_valors['Ajuste de acréscimo CONFINS'] = self.tabela_base_valors['Ajuste de acréscimo CONFINS'].replace('','0').fillna(0).replace(np.nan,0)
         self.tabela_base_valors['Ajuste de acréscimo CONFINS'] = self.tabela_base_valors['Ajuste de acréscimo CONFINS'].astype(str).str.replace(',','.').astype(float)
   
@@ -178,7 +177,8 @@ class TabelasPISConfins(SpedProcessor):
 
         self.tabela_base_valors['Validação'] = (self.tabela_base_valors['Somatorio'] - self.tabela_base_valors['Somatorio_'] - self.tabela_base_valors['Imposto Apurado'])
 
-        self.tabela_base_valors = self.tabela_base_valors.drop_duplicates(subset=['Competência'], keep='last') 
+        self.tabela_base_valors = self.tabela_base_valors.drop_duplicates(subset=['Competência'], keep='first') 
+
         self.tabela_base_valors['Competência'] = self.tabela_base_valors['Competência'].astype(str)
 
         # Adicionar os hífens ao formato 'dd-mm-aaaa'
@@ -188,6 +188,7 @@ class TabelasPISConfins(SpedProcessor):
 
         self.tabela_base_valors['Competência'] = pd.to_datetime(self.tabela_base_valors['Competência'], format='%d-%m-%Y')
         self.tabela_base_valors.sort_values(by='Competência',inplace=True)
+
         st.dataframe(self.tabela_base_valors)
     
 
