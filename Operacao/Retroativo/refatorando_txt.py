@@ -18,20 +18,43 @@ st.markdown(
      unsafe_allow_html=True )
 
 def tabelas_de_apuração(df):
+    
+        
 
         def filtrar_tabelas(df):
             df['Data'] = df.iloc[0,5]
             df = df.iloc[:, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,-1]]
-            df = df.loc[df[0].str.startswith('A170') | df[0].str.startswith('0100')]
+            df = df.loc[df[0].str.startswith('A170') | df[0].str.startswith('0100')|
+                        df[0].str.startswith('A100')| df[0].str.startswith('M200')
+                        | df[0].str.startswith('M600')]
             
             return df
-        
+
         df = filtrar_tabelas(df)
 
 
         return df
 
 class SpedProcessor():
+    """
+    A class used to process SPED (Public Digital Bookkeeping System) files.
+    Methods
+    -------
+    __init__():
+        Initializes the SpedProcessor with an empty DataFrame.
+    lendoELimpandoDadosSped(file_path: os.path):
+        Reads and cleans SPED data from a given file path and stores it in a DataFrame.
+    alteracoes_txt():
+        Applies specific alterations to the DataFrame and recalculates values based on given rules.
+    calculos_aliquota(aliquota: float, base_calculo: int, atribuir_resultado: int):
+        Calculates new values based on a given aliquot and updates the DataFrame.
+    devolvendo_txt():
+        Converts the DataFrame back to a formatted text string.
+    verificacao_a170():
+        Verifies the presence of 'A170' entries and removes specific rows based on given conditions.
+    main():
+        Main method to handle file uploads, process the files, and provide download links for the altered files.
+    """
     def __init__(self):
         self.df = pd.DataFrame()
 
@@ -47,10 +70,10 @@ class SpedProcessor():
                     data.append(valores)
 
         self.df = pd.DataFrame(data)
-        self.df_original = self.df.copy()
+
 
         return self.df
-    
+
     def alteracoes_txt(self):
         # Trabalha com uma cópia do DataFrame para evitar renderizações automáticas indesejadas
         df = self.df.copy()
@@ -97,9 +120,24 @@ class SpedProcessor():
 
         result = '\n'.join(formatted_lines)
         
-        return result
+        return result    
+
+
 
     def verificacao_a170(self):
+        """
+        This method performs several data verification and transformation steps on a DataFrame `self.df`.
+        Steps performed:
+        1. Checks if the DataFrame contains any rows where the first column is 'A170'.
+        2. If 'A170' is not found, removes rows where the first column is 'C100' or 'M100' and displays a success message.
+        3. Removes rows based on specific conditions for columns 'A100', 'F100', 'C100', 'C190', 'C395', 'D100', 'D500', 'F100', 'F120', 'F130', and 'F150'.
+        4. Sets specific columns to 0 for rows where the first column is 'M100'.
+        5. Sets the second column to 3 for rows where the first column is '0110'.
+        6. Updates specific columns based on conditions involving 'A100' and 'A170' rows.
+        7. Defines and calls helper functions `valor_m200` and `valor_m600` to calculate sums for specific columns and updates 'M200' and 'M600' rows with these sums.
+        Returns:
+            pd.DataFrame: The modified DataFrame `self.df`.
+        """
         self.verificacao = None
         if (self.df[0]=='A170').any():
             self.verificacao = True
@@ -108,12 +146,60 @@ class SpedProcessor():
         
         if self.verificacao == False:
 
-            self.df = self.df.loc[(self.df[0] != 'C100')&(self.df[0] != 'M100')]
+            self.df = self.df.loc[~((self.df[0] == 'C100')&(self.df[0] == 'M100'))]
             st.success('O arquivo não possui dados na rubrica "A170"... As Rubricas "C100" e "M100" foram removidas!')
+        
+        self.df = self.df.loc[~((self.df[0] == 'A100') & (self.df[2] == '1'))]
+        self.df = self.df.loc[~((self.df[0] == 'F100') & (self.df[1] == '0'))]
+        
+        self.df = self.df.loc[~(self.df[0] == 'C100')]
+        self.df = self.df.loc[~(self.df[0] == 'C190')]
+        self.df = self.df.loc[~(self.df[0] == 'C395')]
+        self.df = self.df.loc[~(self.df[0] == 'D100')]
+        self.df = self.df.loc[~(self.df[0] == 'D500')]
+        self.df = self.df.loc[~(self.df[0] == 'F100')]
+        self.df = self.df.loc[~(self.df[0] == 'F120')]
+        self.df = self.df.loc[~(self.df[0] == 'F130')]
+        self.df = self.df.loc[~(self.df[0] == 'F150')]
 
+        self.df.loc[self.df[0] == 'M100', 3] = 0
+        self.df.loc[self.df[0] == 'M100', 7] = 0
+        self.df.loc[self.df[0] == 'M100', 11] = 0
+        self.df.loc[self.df[0] == 'M100', 13] = 0
+        self.df.loc[self.df[0] == '0110', 1] = 3
+
+        
+        for i in range(len(self.df) - 1):
+            if self.df.iloc[i, 0] == 'A100' and self.df.iloc[i + 1, 0] == 'A170':
+                self.df.iloc[i, 15] = self.df.iloc[i + 1, 11]
+            if self.df.iloc[i, 0] == 'A100' and self.df.iloc[i + 1, 0] == 'A170':
+                self.df.iloc[i, 17] = self.df.iloc[i + 1, 15]
+
+        def valor_m200(df):
+            a100 = self.df.loc[df[0]=='A100']
+            
+            a100[15] = a100[15].str.replace(',','.').replace('','0').astype(float)
+            soma_a100 = a100[15].sum()
+            print('>>>>>Sooma',soma_a100)
+
+            return soma_a100
+
+        def valor_m600(df):
+            a100 = self.df.loc[df[0]=='A100']
+            
+            a100[17] = a100[17].str.replace(',','.').replace('','0').astype(float)
+            soma_a100 = a100[17].sum()
+            print('>>>>>Sooma',soma_a100)
+
+            return soma_a100    
+
+        m200 = valor_m200(self.df)
+        m600 = valor_m600(self.df)
+
+        self.df.loc[self.df[0] == 'M200',8] = m200
+        self.df.loc[self.df[0] == 'M600',8] = m600
+         
         return self.df
-
-
 
 
     def main(self):
@@ -142,8 +228,8 @@ class SpedProcessor():
                     verificando = sped_processor.verificacao_a170()
                     conteudo_txt = sped_processor.devolvendo_txt()
 
-                    df_comparativo = tabelas_de_apuração(df)
-                    df_comparativo_alterado = tabelas_de_apuração(df_alterado)
+                    df_comparativo_alterado = tabelas_de_apuração(df)
+                    df_comparativo = tabelas_de_apuração(verificando)
                     tabela_original_lista.append(df_comparativo)
                     tabela_de_apuracao_lista.append(df_comparativo_alterado)
 
@@ -160,6 +246,7 @@ class SpedProcessor():
                                 mime="application/zip",type='primary')
 
             arquivo_comparativo_original_final = pd.concat(tabela_original_lista)
+           
             arquivo_comparativo_alterado_final = pd.concat(tabela_de_apuracao_lista)
 
             for file_path in file_paths:
@@ -182,15 +269,17 @@ class SpedProcessor():
                 
                 st.metric('Contagem de dados Original', contagem_original.sum())
                 st.subheader('Tabela de Apuração Original')
-                st.dataframe(arquivo_comparativo_original_final)
+                st.dataframe(arquivo_comparativo_alterado_final)
             
             with col2:
                 st.metric('Contagem de dados Alterados', contagem_alterado.sum())
                 st.subheader('Tabela de Apuração Alterado')
-                st.dataframe(arquivo_comparativo_alterado_final)
+                st.dataframe(arquivo_comparativo_original_final)
 
 if __name__ == '__main__':
     
     pisConfins = SpedProcessor()
     pisConfins.main()
+
+
 
