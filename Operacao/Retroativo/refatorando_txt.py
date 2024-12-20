@@ -146,8 +146,8 @@ class SpedProcessor():
         
         if self.verificacao == False:
 
-            self.df = self.df.loc[~((self.df[0] == 'C100')&(self.df[0] == 'M100'))]
-            st.success('O arquivo não possui dados na rubrica "A170"... As Rubricas "C100" e "M100" foram removidas!')
+           
+            st.success('O arquivo não possui dados na rubrica "A170"...')
         
         self.df = self.df.loc[~((self.df[0] == 'A100') & (self.df[2] == '1'))]
         self.df = self.df.loc[~((self.df[0] == 'F100') & (self.df[1] == '0'))]
