@@ -97,10 +97,10 @@ class SpedProcessor():
 
         return df
     
-    def devolvendo_txt(self):
+    def devolvendo_txt(self,df):
         
 
-        formatted_lines = self.df.apply(lambda row: '|' + '|'.join(row.dropna().astype(str)), axis=1)
+        formatted_lines = df.apply(lambda row: '|' + '|'.join(row.dropna().astype(str)), axis=1)
 
         result = '\n'.join(formatted_lines)
         
@@ -124,8 +124,29 @@ class SpedProcessor():
         df = df.loc[~((df[0] == 'A100') & (df[2] == '1'))]
         df = df.loc[~((df[0] == 'F100') & (df[1] == '0'))]
         
-        df = df.loc[~(df[0] == 'C100')]
-        df = df.loc[~(df[0] == 'C170')]
+        #df = df.loc[~(df[0] == 'C100')]
+        #df = df.loc[~(df[0] == 'C170')]
+
+        df.loc[((df[0] == 'C100')&(df[1] == '0')),25] = ''
+        df.loc[((df[0] == 'C100')&(df[1] == '0')),26] = ''
+        
+        df.loc[((df[0] == 'C170')&(df[1] == '1')),35] = ''
+        df.loc[((df[0] == 'C170')&(df[1] == '1')),33] = ''
+        df.loc[((df[0] == 'C170')&(df[1] == '1')),29] = ''
+        df.loc[((df[0] == 'C170')&(df[1] == '1')),27] = ''
+        
+        
+        
+        
+
+        df.loc[(df[0]=='C170') & (df[1]=='1') & (df[24].str.contains('5')),24] = '70'
+            
+        df.loc[(df[0]=='C170') & (df[1]=='1') & (df[30].str.contains('5')),30] = '70'
+            
+                
+
+        
+        
         df = df.loc[~(df[0] == 'C190')]
         df = df.loc[~(df[0] == 'C395')]
         df = df.loc[~(df[0] == 'D100')]
@@ -135,9 +156,6 @@ class SpedProcessor():
         df = df.loc[~(df[0] == 'F130')]
         df = df.loc[~(df[0] == 'F150')]
 
-
-        df = df.loc[~((df[0]== '9900')&(df[1] == 'C100'))]
-        df = df.loc[~((df[0]== '9900')&(df[1] == 'C170'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'C190'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'C395'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'D100'))]
@@ -154,7 +172,7 @@ class SpedProcessor():
         df.loc[df[0] == 'M100', 7] = 0
         df.loc[df[0] == 'M100', 11] = 0
         df.loc[df[0] == 'M100', 13] = 0
-        df.loc[df[0] == '0110', 1] = 3
+        df.loc[df[0] == '0110', 1] = '3'
 
         
         for i in range(len(df) - 1):
@@ -184,11 +202,35 @@ class SpedProcessor():
         m200 = valor_m200(self.df)
         m600 = valor_m600(self.df)
 
+
+
+
+
         df.loc[df[0] == 'M200',8] = m200
+        df.loc[df[0] == 'M200',1] ='' 
+        df.loc[df[0] == 'M200',2] ='' 
+        df.loc[df[0] == 'M200',3] ='' 
+        df.loc[df[0] == 'M200',4] = ''        
+        df.loc[df[0] == 'M200',5] ='' 
+        
         df.loc[df[0] == 'M600',8] = m600
+        df.loc[df[0] == 'M600',1] = ''
+        df.loc[df[0] == 'M600',2] = ''
+        df.loc[df[0] == 'M600',3] = ''
+        df.loc[df[0] == 'M600',4] = ''
+        df.loc[df[0] == 'M600',5] = ''
+
+
+
+
+
 
         df.loc[df[0] == 'M210',1] = '51'
         df.loc[df[0] == 'M610',1] = '51'
+
+
+
+
 
         df.loc[df[0] == 'M500',3] = '0' 
         df.loc[df[0] == 'M500',7] = '0' 
@@ -212,8 +254,10 @@ class SpedProcessor():
         df.loc[df[0] == 'M100',14] = '0' 
 
         df.loc[df[0] == '0000',3] = numero_recibo 
+       # Adiciona uma linha vazia ao final do DataFrame
+        df =pd.concat([df, pd.DataFrame([[None] * len(df.columns)], columns=df.columns)], ignore_index=True)
 
-
+        st.dataframe(df)
 
 
 
@@ -247,14 +291,13 @@ class SpedProcessor():
                     df_alterado = sped_processor.alteracoes_txt()
                     verificando = sped_processor.verificacao_a170(df_alterado,numero_recibo)
 
-                    conteudo_txt = sped_processor.devolvendo_txt()
+                    conteudo_txt = sped_processor.devolvendo_txt(verificando)
 
                     df_comparativo_alterado = tabelas_de_apuração(df)
                     df_comparativo = tabelas_de_apuração(verificando)
                     tabela_original_lista.append(df_comparativo)
                     tabela_de_apuracao_lista.append(df_comparativo_alterado)
 
-                    data = sped_processor.data
                     
                     data = sped_processor.data
                     arquivo_nome = f"arquivo{data}.txt"
@@ -277,6 +320,7 @@ class SpedProcessor():
 
         if tabela_de_apuracao_lista:
             codigo = st.sidebar.selectbox('Codigo Referencia',options=[codigo for codigo in arquivo_comparativo_original_final[0].unique() if codigo!= '' ])
+
             with col1:
 
                 contagem_original = arquivo_comparativo_original_final.value_counts()
