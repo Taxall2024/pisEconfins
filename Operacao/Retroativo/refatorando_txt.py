@@ -97,7 +97,7 @@ class SpedProcessor():
 
         return df
     
-    def devolvendo_txt(self,df):
+    def devolvendo_txt(self,df:pd.DataFrame):
         
 
         formatted_lines = df.apply(lambda row: '|' + '|'.join(row.dropna().astype(str)), axis=1)
@@ -106,9 +106,7 @@ class SpedProcessor():
         
         return result    
 
-
-
-    def verificacao_a170(self,df,numero_recibo) -> pd.DataFrame:
+    def verificacao_a170(self,df:pd.DataFrame,numero_recibo:int) -> pd.DataFrame:
 
         self.verificacao = None
         if (df[0]=='A170').any():
@@ -123,30 +121,26 @@ class SpedProcessor():
 
         df = df.loc[~((df[0] == 'A100') & (df[2] == '1'))]
         df = df.loc[~((df[0] == 'F100') & (df[1] == '0'))]
-        
-        #df = df.loc[~(df[0] == 'C100')]
-        #df = df.loc[~(df[0] == 'C170')]
+      
 
-        df.loc[((df[0] == 'C100')&(df[1] == '0')),25] = ''
-        df.loc[((df[0] == 'C100')&(df[1] == '0')),26] = ''
+        df.loc[((df[0] == 'C100')&(df[1] == '0')),25] = '0'
+        df.loc[((df[0] == 'C100')&(df[1] == '0')),26] = '0'
         
         df.loc[((df[0] == 'C170')&(df[1] == '1')),35] = ''
         df.loc[((df[0] == 'C170')&(df[1] == '1')),33] = ''
         df.loc[((df[0] == 'C170')&(df[1] == '1')),29] = ''
         df.loc[((df[0] == 'C170')&(df[1] == '1')),27] = ''
         
+        df.loc[((df[0] == 'C170')&(df[1] =='1')),1] = '1'
         
         
-        
-
         df.loc[(df[0]=='C170') & (df[1]=='1') & (df[24].str.contains('5')),24] = '70'
             
         df.loc[(df[0]=='C170') & (df[1]=='1') & (df[30].str.contains('5')),30] = '70'
             
-                
+     
 
-        
-        
+
         df = df.loc[~(df[0] == 'C190')]
         df = df.loc[~(df[0] == 'C395')]
         df = df.loc[~(df[0] == 'D100')]
@@ -164,14 +158,40 @@ class SpedProcessor():
         df = df.loc[~((df[0]== '9900')&(df[1] == 'F120'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'F130'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'F150'))]
+        
+        df = df.loc[~((df[0]== '9900')&(df[1] == 'M100'))]
+        df = df.loc[~((df[0]== '9900')&(df[1] == 'M105'))]
+        df = df.loc[~((df[0]== '9900')&(df[1] == 'M500'))]
+        df = df.loc[~((df[0]== '9900')&(df[1] == 'M505'))]
           
         
         
+
+
+
+        df = df.loc[~((df[0]== 'M100'))]
+        df = df.loc[~((df[0]== 'M105'))]
+        df = df.loc[~((df[0]== 'M500'))]
+        df = df.loc[~((df[0]== 'M505'))]
+        
+        df.loc[df[0] == 'M205', 1] = '12'
+        df.loc[df[0] == 'M100', 2] = '810902'
+        
+        df.loc[df[0] == '210', 7] = '0,65' 
+        
+        
+        df.loc[df[0] == 'M605', 1] = '12'
+        df.loc[df[0] == 'M605', 2] = '217201'
+        
+        df.loc[df[0] == 'M610', 7] = '3'
+     
+
         
         df.loc[df[0] == 'M100', 3] = 0
         df.loc[df[0] == 'M100', 7] = 0
         df.loc[df[0] == 'M100', 11] = 0
         df.loc[df[0] == 'M100', 13] = 0
+        
         df.loc[df[0] == '0110', 1] = '3'
 
         
@@ -199,37 +219,31 @@ class SpedProcessor():
 
             return soma_a100    
 
-        m200 = valor_m200(self.df)
-        m600 = valor_m600(self.df)
+        m200 = valor_m200(df)
+        m600 = valor_m600(df)
 
 
 
-
-
-        df.loc[df[0] == 'M200',8] = m200
-        df.loc[df[0] == 'M200',1] ='' 
-        df.loc[df[0] == 'M200',2] ='' 
-        df.loc[df[0] == 'M200',3] ='' 
-        df.loc[df[0] == 'M200',4] = ''        
-        df.loc[df[0] == 'M200',5] ='' 
+        df.loc[df[0] == 'M200',9] = m200
+        df.loc[df[0] == 'M200',1] ='0'
+        df.loc[df[0] == 'M200',2] ='0' 
+        df.loc[df[0] == 'M200',3] ='0' 
+        df.loc[df[0] == 'M200',4] = '0'        
+        df.loc[df[0] == 'M200',5] ='0' 
+        df.loc[df[0] == 'M200',8] ='0' 
         
-        df.loc[df[0] == 'M600',8] = m600
-        df.loc[df[0] == 'M600',1] = ''
-        df.loc[df[0] == 'M600',2] = ''
-        df.loc[df[0] == 'M600',3] = ''
-        df.loc[df[0] == 'M600',4] = ''
-        df.loc[df[0] == 'M600',5] = ''
-
-
-
-
-
+        df.loc[df[0] == 'M600',9] = m600
+        df.loc[df[0] == 'M600',1] = '0'
+        df.loc[df[0] == 'M600',2] = '0'
+        df.loc[df[0] == 'M600',3] = '0'
+        df.loc[df[0] == 'M600',4] = '0'
+        df.loc[df[0] == 'M600',5] = '0'
+        df.loc[df[0] == 'M600',8] = '0'
+        
+        
 
         df.loc[df[0] == 'M210',1] = '51'
         df.loc[df[0] == 'M610',1] = '51'
-
-
-
 
 
         df.loc[df[0] == 'M500',3] = '0' 
@@ -253,17 +267,44 @@ class SpedProcessor():
         df.loc[df[0] == 'M100',13] = '0' 
         df.loc[df[0] == 'M100',14] = '0' 
 
-        df.loc[df[0] == '0000',3] = numero_recibo 
-       # Adiciona uma linha vazia ao final do DataFrame
-        df =pd.concat([df, pd.DataFrame([[None] * len(df.columns)], columns=df.columns)], ignore_index=True)
+        df.loc[df[0] == '0000',3] = numero_recibo        
+        contagem_99_00 = df.loc[df[0] == '9900', 0].value_counts()
+        
+
+        start_index = df.index[df[0].str.startswith('1990')].min()
+        end_index = df.index[df[0].str.startswith('9999')].max()
+
+        # Fazer o slice do DataFrame usando os índices identificados
+        subset_df = df.loc[start_index:end_index]
+
+        # Contar o número de linhas no subset
+        contagem_linhas_99_90 = len(subset_df)
+
+        contagem_total_linhas = len(df)
+  
+        
+        print('-------->    Contagem Total de linhas: ',contagem_total_linhas)
+        
+        print('-------->    Contagem 99  00 :: ', contagem_99_00.values[0])
+        
+        print('-------->    Contagem 99  90 :: ',  contagem_linhas_99_90)
+
+        
+        df.loc[df[0] == '9999',1 ] = contagem_total_linhas
+
+
+        df.loc[(df[0] == '9900') & (df[1] == '9900'),2] = contagem_99_00.values[0]
+
+        df.loc[(df[0] == '9990' ),1] = contagem_linhas_99_90
+
+        
+       
+        df = pd.concat([df, pd.DataFrame([[None] * len(df.columns)], columns=df.columns)], ignore_index=True)
 
         st.dataframe(df)
 
-
-
-
+       
         return df
-
 
     def main(self):
         
@@ -348,3 +389,22 @@ if __name__ == '__main__':
 
 
 
+'''
+
+---------------
+
+
+Alterar valor F990
+
+M990 alterar valor
+
+Penúltimo adicionar apenas 3 item
+
+Verificar de formulas para segundas linhas no C170( Segunda linha não esta pegando os cálculos)
+
+M210 alterar as alíquota e refazer calculo
+
+M610 -> Alterar alíquota e refazer calculo
+
+
+'''
