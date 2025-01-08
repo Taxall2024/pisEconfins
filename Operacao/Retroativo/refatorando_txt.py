@@ -123,21 +123,22 @@ class SpedProcessor():
         df = df.loc[~((df[0] == 'F100') & (df[1] == '0'))]
       
 
+
+        
         df.loc[((df[0] == 'C100')&(df[1] == '0')),25] = '0'
         df.loc[((df[0] == 'C100')&(df[1] == '0')),26] = '0'
-        
-        df.loc[((df[0] == 'C170')&(df[1] == '1')),35] = ''
-        df.loc[((df[0] == 'C170')&(df[1] == '1')),33] = ''
-        df.loc[((df[0] == 'C170')&(df[1] == '1')),29] = ''
-        df.loc[((df[0] == 'C170')&(df[1] == '1')),27] = ''
-        
-        df.loc[((df[0] == 'C170')&(df[1] =='1')),1] = '1'
-        
-        
-        df.loc[(df[0]=='C170') & (df[1]=='1') & (df[24].str.contains('5')),24] = '70'
-            
-        df.loc[(df[0]=='C170') & (df[1]=='1') & (df[30].str.contains('5')),30] = '70'
-            
+        for i in range(20):            
+            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),35] = ''
+            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),33] = ''
+            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),29] = ''
+            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),27] = ''
+                
+                
+            df.loc[(df[0]=='C170') & (df[1]==f'{i}') & (df[24].str.contains('5')),24] = '70'
+
+                    
+            df.loc[(df[0]=='C170') & (df[1]==f'{i}') & (df[30].str.contains('5')),30] = '70'
+                
      
 
 
@@ -177,7 +178,7 @@ class SpedProcessor():
         df.loc[df[0] == 'M205', 1] = '12'
         df.loc[df[0] == 'M100', 2] = '810902'
         
-        df.loc[df[0] == '210', 7] = '0,65' 
+        df.loc[df[0] == 'M210', 7] = '0,65' 
         
         
         df.loc[df[0] == 'M605', 1] = '12'
@@ -205,7 +206,9 @@ class SpedProcessor():
             a100 = df.loc[df[0]=='A100']
             
             a100[15] = a100[15].str.replace(',','.').replace('','0').astype(float)
-            soma_a100 = a100[15].sum()
+            soma_a100 = round(a100[15].sum(),2)
+            soma_a100 = str(soma_a100).replace('.',',')
+
             print('>>>>>Sooma',soma_a100)
 
             return soma_a100
@@ -214,7 +217,9 @@ class SpedProcessor():
             a100 = df.loc[df[0]=='A100']
             
             a100[17] = a100[17].str.replace(',','.').replace('','0').astype(float)
-            soma_a100 = a100[17].sum()
+            soma_a100 = round(a100[17].sum(),2)
+            soma_a100 = str(soma_a100).replace('.',',')
+            
             print('>>>>>Sooma',soma_a100)
 
             return soma_a100    
@@ -222,23 +227,60 @@ class SpedProcessor():
         m200 = valor_m200(df)
         m600 = valor_m600(df)
 
+        def recalculando_m210(df):
+            m210_valor_total = df.loc[df[0] == 'M210', 6].str.replace(',', '.').replace('', '0').astype(float)
+            m210_aliquota = 0.0065
 
+            resultado = round(m210_valor_total * m210_aliquota, 2).iloc[0]  # Acesso ao primeiro elemento
+            resultado = str(resultado).replace('.', ',')
+            print('------- Valor base m210', m210_valor_total)
+            print('--------Aliquota m210', m210_aliquota)
+            print('----------- Resultado Recalculo M210 :: >>', resultado)
+            return resultado
 
-        df.loc[df[0] == 'M200',9] = m200
+        def recalculando_m610(df):
+            m610_valor_total = df.loc[df[0] == 'M610', 6].str.replace(',', '.').replace('', '0').astype(float)
+            m610_aliquota = 0.03
+
+            resultado = round(m610_valor_total * m610_aliquota, 2).iloc[0]  # Acesso ao primeiro elemento
+            resultado = str(resultado).replace('.', ',')
+            print('------- Valor base m610', m610_valor_total)
+            print('--------Aliquota m610', m610_aliquota)
+            print('----------- Resultado Recalculo 610 :: >>', resultado)
+            return resultado
+
+        m210 = recalculando_m210(df)   
+        m610 = recalculando_m610(df)
+
+        df.loc[df[0] == 'M210',10] = m210
+        df.iloc[df[0] == 'M610',10] = m610
+
+        df.loc[df[0] == 'M210',15] = m210
+        df.iloc[df[0] == 'M610',15] = m610
+
+        df.loc[df[0] == 'M205',2] = '810902'
+        df.loc[df[0] == 'M205',3] = m210
+                
+        df.loc[df[0] == 'M605',3] = m610
+
+        df.iloc[df[0] == 'M610',10] = m610
+        df.loc[df[0] == 'M200',12] = m200
+        df.loc[df[0] == 'M200',8] = m200
         df.loc[df[0] == 'M200',1] ='0'
         df.loc[df[0] == 'M200',2] ='0' 
         df.loc[df[0] == 'M200',3] ='0' 
         df.loc[df[0] == 'M200',4] = '0'        
         df.loc[df[0] == 'M200',5] ='0' 
-        df.loc[df[0] == 'M200',8] ='0' 
-        
-        df.loc[df[0] == 'M600',9] = m600
+        df.loc[df[0] == 'M200',9] ='0' 
+                
+        df.loc[df[0] == 'M600',12] = m600
+        df.loc[df[0] == 'M600',8] = m600
         df.loc[df[0] == 'M600',1] = '0'
         df.loc[df[0] == 'M600',2] = '0'
         df.loc[df[0] == 'M600',3] = '0'
         df.loc[df[0] == 'M600',4] = '0'
         df.loc[df[0] == 'M600',5] = '0'
-        df.loc[df[0] == 'M600',8] = '0'
+        df.loc[df[0] == 'M600',9] = '0'
         
         
 
@@ -271,7 +313,7 @@ class SpedProcessor():
         contagem_99_00 = df.loc[df[0] == '9900', 0].value_counts()
         
 
-        start_index = df.index[df[0].str.startswith('1990')].min()
+        start_index = df.index[df[0].str.startswith('9001')].min()
         end_index = df.index[df[0].str.startswith('9999')].max()
 
         # Fazer o slice do DataFrame usando os índices identificados
@@ -297,7 +339,14 @@ class SpedProcessor():
 
         df.loc[(df[0] == '9990' ),1] = contagem_linhas_99_90
 
-        
+        contador_M = df[df[0].str.startswith('M')].shape[0]
+        contador_F = df[df[0].str.startswith('F')].shape[0]
+
+        print('----->>> Contagem valor com M: ',contador_M)
+        print('----->>> Contagem valor com F: ',contador_F)
+
+        df.loc[df[0] == 'M990',1] = contador_M
+        df.loc[df[0] == 'F990',1] = contador_F
        
         df = pd.concat([df, pd.DataFrame([[None] * len(df.columns)], columns=df.columns)], ignore_index=True)
 
@@ -388,23 +437,3 @@ if __name__ == '__main__':
     pisConfins.main()
 
 
-
-'''
-
----------------
-
-
-Alterar valor F990
-
-M990 alterar valor
-
-Penúltimo adicionar apenas 3 item
-
-Verificar de formulas para segundas linhas no C170( Segunda linha não esta pegando os cálculos)
-
-M210 alterar as alíquota e refazer calculo
-
-M610 -> Alterar alíquota e refazer calculo
-
-
-'''
