@@ -109,17 +109,9 @@ class SpedProcessor():
     def verificacao_a170(self,df:pd.DataFrame,numero_recibo:int) -> pd.DataFrame:
 
         self.verificacao = None
-        if (df[0]=='A170').any():
-            self.verificacao = True
-        else:
-            verificacao = False
-        
-        if self.verificacao == False:
 
-           
-            st.success('O arquivo não possui dados na rubrica "A170"...')
 
-        df = df.loc[~((df[0] == 'A100') & (df[2] == '1'))]
+        #df = df.loc[~((df[0] == 'A100') & (df[2] == '1'))]
         df = df.loc[~((df[0] == 'F100') & (df[1] == '0'))]
       
 
@@ -127,29 +119,36 @@ class SpedProcessor():
         
         df.loc[((df[0] == 'C100')&(df[1] == '0')),25] = '0'
         df.loc[((df[0] == 'C100')&(df[1] == '0')),26] = '0'
-        for i in range(20):            
-            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),35] = ''
-            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),33] = ''
-            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),29] = ''
-            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),27] = ''
+
+        '''   '''
+        for i in range(100):            
+            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),35] = '0'
+            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),33] = '0'
+            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),29] = '0'
+            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),25] = '0'
+    
+            df.loc[((df[0] == 'C170')&(df[1] == f'{i}')),31] = '0'
+
                 
                 
             df.loc[(df[0]=='C170') & (df[1]==f'{i}') & (df[24].str.contains('5')),24] = '70'
 
                     
             df.loc[(df[0]=='C170') & (df[1]==f'{i}') & (df[30].str.contains('5')),30] = '70'
-                
-     
-
-
+            '''  '''  
+                       
+   
+        ''' '''
         df = df.loc[~(df[0] == 'C190')]
         df = df.loc[~(df[0] == 'C395')]
+        df = df.loc[~(df[0] == 'C396')]
         df = df.loc[~(df[0] == 'D100')]
         df = df.loc[~(df[0] == 'D500')]
         df = df.loc[~(df[0] == 'F100')]
         df = df.loc[~(df[0] == 'F120')]
         df = df.loc[~(df[0] == 'F130')]
         df = df.loc[~(df[0] == 'F150')]
+
 
         df = df.loc[~((df[0]== '9900')&(df[1] == 'C190'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'C395'))]
@@ -159,22 +158,23 @@ class SpedProcessor():
         df = df.loc[~((df[0]== '9900')&(df[1] == 'F120'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'F130'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'F150'))]
-        
+        '''  '''
+
+
+        ''' '''
         df = df.loc[~((df[0]== '9900')&(df[1] == 'M100'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'M105'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'M500'))]
         df = df.loc[~((df[0]== '9900')&(df[1] == 'M505'))]
-          
-        
-        
-
 
 
         df = df.loc[~((df[0]== 'M100'))]
         df = df.loc[~((df[0]== 'M105'))]
         df = df.loc[~((df[0]== 'M500'))]
         df = df.loc[~((df[0]== 'M505'))]
-        
+        '''  '''
+
+        '''  '''
         df.loc[df[0] == 'M205', 1] = '12'
         df.loc[df[0] == 'M100', 2] = '810902'
         
@@ -185,7 +185,7 @@ class SpedProcessor():
         df.loc[df[0] == 'M605', 2] = '217201'
         
         df.loc[df[0] == 'M610', 7] = '3'
-     
+        '''  '''
 
         
         df.loc[df[0] == 'M100', 3] = 0
@@ -202,6 +202,30 @@ class SpedProcessor():
             if df.iloc[i, 0] == 'A100' and df.iloc[i + 1, 0] == 'A170':
                 df.iloc[i, 17] = df.iloc[i + 1, 15]
 
+        df[0] = df[0].astype(str).str.strip()
+        df[2] = df[2].astype(str).str.strip()
+
+        df.loc[((df[0] == 'A100') & (df[2] == '1')), 15] = '0'
+        df.loc[((df[0] == 'A100') & (df[2] == '1')), 17] = '0'
+        
+        for i in range(len(df) - 1):
+            if ((df.iloc[i, 0] == 'A100') & (df.iloc[i, 2] == '1')) and df.iloc[i + 1, 0] == 'A170':
+                df.iloc[i + 1, 8] = '70'
+                df.iloc[i + 1, 12] = '70'
+                
+                df.iloc[i + 1, 11] = '0'
+                df.iloc[i + 1, 15] = '0'
+
+ 
+        df.loc[(df[0] == 'F600'),6] = '1'
+      
+        df = df.loc[~(df[0] == 'C500')]
+        df = df.loc[~((df[1] == 'C500')&(df[0] == '9900'))]
+        
+        df = df.loc[~(df[0].str.contains('C50'))]
+        df = df.loc[~((df[1].str.contains('C50'))&(df[0] == '9900'))]
+        
+        
         def valor_m200(df):
             a100 = df.loc[df[0]=='A100']
             
