@@ -312,3 +312,35 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M100',13] = '0' 
         self.df.loc[self.df[0] == 'M100',14] = '0' 
 
+
+    def recaculcalndo_aliquota_C170_Col2_0(self):
+
+        self.df = self.calculos_aliquota_C170(self.df,0.0065, 15, 25)
+        self.df = self.calculos_aliquota_C170(self.df,0.03, 15, 26)
+        
+        print('Função Recalculo C170')
+
+
+    def calculos_aliquota_C170(self,df:pd.DataFrame,aliquota:float, base_calculo: int, atribuir_resultado: int):
+        mask_a170 = ((df[0] == 'C100')&(df[2] == '0'))
+        print('-------> LOG => Mask C170')
+        print(mask_a170)
+        numeric_values = pd.to_numeric(df.loc[mask_a170, base_calculo].str.replace(',', '.'), errors='coerce')
+
+        new_values = numeric_values * aliquota
+        new_values = new_values.apply(lambda x: f"{x:.2f}".replace('.', ','))
+
+        df.loc[mask_a170, atribuir_resultado] = new_values   
+
+        return df
+    
+    def alteracao_aliquota_C170(self):
+
+        for i in range(len(self.df) - 1):
+            if ((self.df.iloc[i, 0] == 'C100') & (self.df.iloc[i, 2] == '0')) and self.df.iloc[i + 1, 0] == 'C170':
+                self.df.iloc[i + 1, 26] = '0,65'
+                self.df.iloc[i + 1, 32] = '3'
+                
+
+
+
