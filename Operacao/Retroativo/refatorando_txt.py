@@ -136,9 +136,17 @@ class SpedProcessor(ab,ar):
         self.zerando_valores_M500()
         self.zerando_valores_M600()
 
+        # ''' Até aqui são as alterações que geraram os resultados dos arquivos para GE e Máxima '''
+
+        # '''  A partir daqui são alterações novas da Brasfort '''
+        
+        self.recaculcalndo_aliquota_C170_Col2_0()
+        self.alteracao_aliquota_C170()
+
+
         #Abs Method
         self.calculando_contadores_de_linhas()
-
+        
         st.dataframe(self.df)
         return self.df
 
