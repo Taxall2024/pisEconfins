@@ -8,7 +8,9 @@ import functools
 
 from alteracoes_base_implementacao import ImplementandoAlteracoesBase as ab
 from alteracoes_registros import AlteracoesRegistros as ar
+from logger import Logger
 
+log = Logger().init_log()
 
 
 
@@ -50,34 +52,40 @@ class SpedProcessor(ab,ar):
     def __init__(self):
         self.df = pd.DataFrame()
 
-        
 
     def lendoELimpandoDadosSped(self, file_path: os.path):
-        data = []
-        if file_path is None or not os.path.exists(file_path):
-            raise ValueError("Arquivo não encontrado.")
-        with open(file_path, 'r', encoding='latin-1') as file:
-            for linha in file:
-                linha = linha.strip()
-                if linha.startswith('|'):
-                    valores = linha.split('|')[1:]
-                    data.append(valores)
 
-        self.df = pd.DataFrame(data)
-        
+        try:
+                
+            data = []
+            if file_path is None or not os.path.exists(file_path):
+                raise ValueError("Arquivo não encontrado.")
+            with open(file_path, 'r', encoding='latin-1') as file:
+                for linha in file:
+                    linha = linha.strip()
+                    if linha.startswith('|'):
+                        valores = linha.split('|')[1:]
+                        data.append(valores)
+
+            self.df = pd.DataFrame(data)
+        except Exception as e:
+            log.error(f"Erro ao ler o arquivo: {e}")        
 
         return self.df
 
 
-
     def devolvendo_txt(self,df:pd.DataFrame):
         
+        try:
+                
+            formatted_lines = df.apply(lambda row: '|' + '|'.join(row.dropna().astype(str)), axis=1)
+            
+            result = '\n'.join(formatted_lines)
+            if result.endswith('|'):
+                result = result[:-38]
+        except Exception as e:            
+            log.error(f"Erro ao formatar o arquivo: {e}")
 
-        formatted_lines = df.apply(lambda row: '|' + '|'.join(row.dropna().astype(str)), axis=1)
-
-        result = '\n'.join(formatted_lines)
-        if result.endswith('|'):
-            result = result[:-38]
         return result    
     
     def aplicado_alteradores(self):
@@ -149,7 +157,6 @@ class SpedProcessor(ab,ar):
         
         st.dataframe(self.df)
         return self.df
-
 
 
     def main(self):

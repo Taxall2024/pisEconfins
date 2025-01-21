@@ -8,10 +8,10 @@ class TestSpedProcessor(unittest.TestCase):
         # Inicializa a instância do SpedProcessor com um caminho de arquivo vazio para os testes
         self.sped_processor = SpedProcessor([])
         self.mock_file_content = """|A|B|C|D|E|F|G|H|I|J|K|L|M|N
-|M210|1|2|3|4|5|6|7|8|9|10|11|12|13
-|M600|1|2|3|4|5|6|7|8|9|10|11|12|13
-|M200|1|2|3|4|5|6|7|8|9|10|11|12|13
-|M610|1|2|3|4|5|6|7|8|9|10|11|12|13"""
+                                    |M210|1|2|3|4|5|6|7|8|9|10|11|12|13
+                                    |M600|1|2|3|4|5|6|7|8|9|10|11|12|13
+                                    |M200|1|2|3|4|5|6|7|8|9|10|11|12|13
+                                    |M610|1|2|3|4|5|6|7|8|9|10|11|12|13"""
 
         # Cria um arquivo de teste temporário
         with open('test_file.txt', 'w') as file:
