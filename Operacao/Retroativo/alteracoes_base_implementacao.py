@@ -3,7 +3,7 @@ import pandas as pd
 
 
 class ImplementandoAlteracoesBase(AlteracoesBase):
-    def calculando_contadores_de_linhas(self):
+    def dados_willian(self):
         
         self.df.loc[self.df[0] == '0000', 2] = 1
         self.df.loc[self.df[0] == '0100', 1] = 'WILLIAM SILVA DE ALMEIDA'
@@ -17,7 +17,7 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
         
         self.df.loc[self.df[0] == '0110', 1] = '3'
 
-    def dados_willian(self):
+    def calculando_contadores_de_linhas(self):
 
         contagem_99_00 = self.df.loc[self.df[0] == '9900', 0].value_counts()
         
@@ -31,18 +31,9 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
         # Contar o número de linhas no subset
         contagem_linhas_99_90 = len(subset_df)
 
-        contagem_total_linhas = len(self.df)
-  
-        
-        print('-------->    Contagem Total de linhas: ',contagem_total_linhas)
-        
-        print('-------->    Contagem 99  00 :: ', contagem_99_00.values[0])
-        
-        print('-------->    Contagem 99  90 :: ',  contagem_linhas_99_90)
-
+        contagem_total_linhas = len(self.df) -1
         
         self.df.loc[self.df[0] == '9999',1 ] = contagem_total_linhas
-
 
         self.df.loc[(self.df[0] == '9900') & (self.df[1] == '9900'),2] = contagem_99_00.values[0]
 
@@ -51,9 +42,9 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
         contador_M = self.df[self.df[0].str.startswith('M')].shape[0]
         contador_F = self.df[self.df[0].str.startswith('F')].shape[0]
 
-        print('----->>> Contagem valor com M: ',contador_M)
-        print('----->>> Contagem valor com F: ',contador_F)
-
+        print('---------- LOG Contador de linhas para Rubrica M => ',contador_M)
+        print('---------- LOG Contador de linhas para Rubrica M => ',contador_F)
+        
         self.df.loc[self.df[0] == 'M990',1] = contador_M
         self.df.loc[self.df[0] == 'F990',1] = contador_F
        
