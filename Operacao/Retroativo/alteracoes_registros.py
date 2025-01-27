@@ -1,9 +1,5 @@
 import pandas as pd
 import numpy as np
-from logger import Logger
-
-log = Logger().init_log()
-
 class AlteracoesRegistros():
     
     def __init__(self,df):
@@ -344,9 +340,9 @@ class AlteracoesRegistros():
             if ((self.df.iloc[i, 0] == 'C100') & (self.df.iloc[i, 2] == '0')) and self.df.iloc[i + 1, 0] == 'C170':
                 self.df.iloc[i + 1, 26] = '0,65'
                 self.df.iloc[i + 1, 32] = '3'
-                for j in range(50):
-                   self.df.iloc[i + j, 33] = np.nan
-                
-
+            for j in range(1, 51):
+                if i + j < len(self.df) and self.df.iloc[i + j, 0] == 'C170':
+                    self.df.iloc[i + j, 33] = '' 
+                    
 
 

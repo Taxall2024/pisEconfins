@@ -5,17 +5,43 @@ import zipfile
 from io import BytesIO
 import base64
 import functools
+import psutil
+import time
+import threading
 
 from alteracoes_base_implementacao import ImplementandoAlteracoesBase as ab
 from alteracoes_registros import AlteracoesRegistros as ar
-from logger import Logger
-
-log = Logger().init_log()
 
 
 
+from colorama import Fore, Style
 
 
+
+cpu_usage = psutil.cpu_percent(interval=1)
+memory_usagePercent = psutil.virtual_memory().percent
+
+def log(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+
+        start = time.time()
+
+        print(f"{Fore.CYAN}{Style.BRIGHT}Iniciando a execução da função {func.__name__}{Style.RESET_ALL}")
+
+        result = func(*args, **kwargs)
+
+        print(f"{Fore.GREEN}{Style.BRIGHT}Finalizando a execução da função {func.__name__}{Style.RESET_ALL}")
+
+        tempo_de_excução = time.time() - start
+
+        print(f"{Fore.YELLOW}{Style.BRIGHT}Tempo de execução da funçâo {func.__name__}: {tempo_de_excução:.2f} segundos{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}{Style.BRIGHT}Uso de CPU da função {func.__name__}: {cpu_usage}%{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}{Style.BRIGHT}Uso de memória da função {func.__name__}: {memory_usagePercent}%{Style.RESET_ALL}")
+
+        return result
+
+    return wrapper
 zip_buffer = BytesIO()
 
 st.set_page_config(layout='wide')
@@ -52,7 +78,7 @@ class SpedProcessor(ab,ar):
     def __init__(self):
         self.df = pd.DataFrame()
 
-
+    @log
     def lendoELimpandoDadosSped(self, file_path: os.path):
 
         try:
@@ -73,22 +99,22 @@ class SpedProcessor(ab,ar):
 
         return self.df
 
-
+    @log
     def devolvendo_txt(self,df:pd.DataFrame):
         
-        try:
                 
-            formatted_lines = df.apply(lambda row: '|' + '|'.join(row.dropna().astype(str)), axis=1)
+        formatted_lines = df.apply(lambda row: '|' + '|'.join(row.dropna().astype(str)), axis=1)
             
-            result = '\n'.join(formatted_lines)
-            if result.endswith('|'):
-                result = result[:-38]
-        except Exception as e:            
-            log.error(f"Erro ao formatar o arquivo: {e}")
-
+        result = '\n'.join(formatted_lines)
+        if result.endswith('|'):
+                result = result[:-77]
         return result    
     
+    @log
     def aplicado_alteradores(self):
+        
+        st.subheader('Arquivo Original')
+        st.dataframe(self.df)
 
         ar.__init__(self,self.df)
         ab.__init__(self,self.df)
@@ -98,7 +124,6 @@ class SpedProcessor(ab,ar):
         
         self.calculando_contadores_de_linhas()
         self.recaculcalndo_aliquota_A170()
-
 
         # Remoççao com condicional
         self.remove_A100_Col2_1()
@@ -158,7 +183,7 @@ class SpedProcessor(ab,ar):
         st.dataframe(self.df)
         return self.df
 
-
+    @log
     def main(self):
         
         uploaded_files = st.sidebar.file_uploader("Escolha os arquivos SPED", type=['txt'], accept_multiple_files=True)
