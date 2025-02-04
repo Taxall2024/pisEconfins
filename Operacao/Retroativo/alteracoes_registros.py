@@ -345,4 +345,18 @@ class AlteracoesRegistros():
                     self.df.iloc[i + j, 33] = '' 
                     
 
+    def remove_m205_repetida(self):
+        mask_m205 = self.df[0] == 'M205'
+        df_no_m205 = self.df[~mask_m205]
+        df_m205_unique = self.df[mask_m205].drop_duplicates(subset=0, keep='first')
+        self.df = pd.concat([df_no_m205, df_m205_unique]).sort_index().reset_index(drop=True)
+
+    def remove_m605_repetida(self):
+        mask_m605 = self.df[0] == 'M605'
+        df_no_m605 = self.df[~mask_m605]
+        df_m605_unique = self.df[mask_m605].drop_duplicates(subset=0, keep='first')
+        self.df = pd.concat([df_no_m605, df_m605_unique]).sort_index().reset_index(drop=True)
+
+
+
 

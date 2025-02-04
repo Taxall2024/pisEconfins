@@ -175,7 +175,8 @@ class SpedProcessor(ab,ar):
         
         self.recaculcalndo_aliquota_C170_Col2_0()
         self.alteracao_aliquota_C170()
-
+        self.remove_m205_repetida()
+        self.remove_m605_repetida()
 
         #Abs Method
         self.calculando_contadores_de_linhas()
