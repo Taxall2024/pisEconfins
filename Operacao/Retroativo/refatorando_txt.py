@@ -178,6 +178,11 @@ class SpedProcessor(ab,ar):
         self.remove_m205_repetida()
         self.remove_m605_repetida()
 
+        self.somatorio_agragado_valores_c170_m200()
+        self.somatorio_agragado_valores_c170_m600()
+
+        self.agregado_F600_M200()
+        self.agregado_F600_M600()
         #Abs Method
         self.calculando_contadores_de_linhas()
         

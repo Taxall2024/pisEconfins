@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import colorama
 class AlteracoesRegistros():
     
     def __init__(self,df):
@@ -340,6 +341,16 @@ class AlteracoesRegistros():
             if ((self.df.iloc[i, 0] == 'C100') & (self.df.iloc[i, 2] == '0')) and self.df.iloc[i + 1, 0] == 'C170':
                 self.df.iloc[i + 1, 26] = '0,65'
                 self.df.iloc[i + 1, 32] = '3'
+                
+                base_de_calculo_numerico = float(self.df.iloc[i , 15].replace(',', '.'))
+
+                self.df.iloc[i + 1 , 25] = self.df.iloc[i , 15]
+                self.df.iloc[i + 1 , 31] = self.df.iloc[i , 15]
+
+                self.df.iloc[i + 1, 29] = str(round(base_de_calculo_numerico * 0.0065,2)).replace('.', ',')
+                self.df.iloc[i + 1, 35] = str(round(base_de_calculo_numerico * 0.03,2)).replace('.', ',')
+
+
             for j in range(1, 51):
                 if i + j < len(self.df) and self.df.iloc[i + j, 0] == 'C170':
                     self.df.iloc[i + j, 33] = '' 
@@ -357,6 +368,39 @@ class AlteracoesRegistros():
         df_m605_unique = self.df[mask_m605].drop_duplicates(subset=0, keep='first')
         self.df = pd.concat([df_no_m605, df_m605_unique]).sort_index().reset_index(drop=True)
 
+    def somatorio_agragado_valores_c170_m200(self):
+        lista_de_valores = []
+        
+        for i in range(len(self.df) - 1):
+            if ((self.df.iloc[i, 0] == 'C100') & (self.df.iloc[i, 2] == '0')) and self.df.iloc[i + 1, 0] == 'C170':
+                lista_de_valores.append(float(self.df.iloc[i + 1, 29].replace(',', '.')))
+    
+    
+        valor_total = sum(lista_de_valores)
+        self.df.loc[self.df[0] == 'M200', 8] = str(valor_total).replace('.', ',')
 
+    def somatorio_agragado_valores_c170_m600(self):
+
+        lista_de_valores = []
+        
+        for i in range(len(self.df) - 1):
+            if ((self.df.iloc[i, 0] == 'C100') & (self.df.iloc[i, 2] == '0')) and self.df.iloc[i + 1, 0] == 'C170':
+                lista_de_valores.append(float(self.df.iloc[i + 1, 35].replace(',', '.')))
+    
+    
+        valor_total = sum(lista_de_valores)
+        self.df.loc[self.df[0] == 'M600', 8] = str(valor_total).replace('.', ',')
+                
+    def agregado_F600_M200(self):
+
+        valor_total = self.df.loc[self.df[0] == 'F600', 8].str.replace(',', '.').replace('', '0').astype(float).sum()
+        self.df.loc[self.df[0] == 'M200', 9 ] = str(valor_total).replace('.', ',')                
+
+    def agregado_F600_M600(self):
+
+        valor_total = self.df.loc[self.df[0] == 'F600', 9].str.replace(',', '.').replace('', '0').astype(float).sum()
+        self.df.loc[self.df[0] == 'M600', 9 ] = str(valor_total).replace('.', ',')                
+
+     
 
 
