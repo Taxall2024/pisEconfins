@@ -31,7 +31,7 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
         # Contar o número de linhas no subset
         contagem_linhas_99_90 = len(subset_df)
 
-        contagem_total_linhas = len(self.df) -1
+        contagem_total_linhas = len(self.df) - 1
         
         self.df.loc[self.df[0] == '9999',1 ] = contagem_total_linhas
 
