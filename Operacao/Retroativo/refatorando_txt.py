@@ -183,6 +183,11 @@ class SpedProcessor(ab,ar):
 
         self.agregado_F600_M200()
         self.agregado_F600_M600()
+
+        self.removendo_m210_duplicada_e_ajustando_valores()
+
+
+
         #Abs Method
         self.calculando_contadores_de_linhas()
         
