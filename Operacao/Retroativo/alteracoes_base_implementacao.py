@@ -15,7 +15,10 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
         self.df.loc[self.df[0] == '0100', 10] = 6181272930
         self.df.loc[self.df[0] == '0100', 12] = 'NEGOCIOS@TAXALL.COM.BR'        
         
-        self.df.loc[self.df[0] == '0110', 1] = '3'
+        self.df.loc[self.df[0] == '0110', 1] = '2'
+
+        self.df = self.df.loc[self.df[0] != '0111']
+        self.df = self.df.loc[~((self.df[0] == '9900')&(self.df[1] == '0111'))]
 
     def calculando_contadores_de_linhas(self):
 

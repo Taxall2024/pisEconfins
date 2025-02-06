@@ -354,7 +354,8 @@ class AlteracoesRegistros():
             for j in range(1, 51):
                 if i + j < len(self.df) and self.df.iloc[i + j, 0] == 'C170':
                     self.df.iloc[i + j, 33] = '' 
-                    
+                    self.df.iloc[i + j, 26] = '0,65' 
+                    self.df.iloc[i + j, 32] = '3' 
 
     def remove_m205_repetida(self):
         mask_m205 = self.df[0] == 'M205'
