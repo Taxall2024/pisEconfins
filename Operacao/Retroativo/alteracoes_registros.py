@@ -394,12 +394,12 @@ class AlteracoesRegistros():
     def agregado_F600_M200(self):
 
         valor_total = round(self.df.loc[self.df[0] == 'F600', 8].str.replace(',', '.').replace('', '0').astype(float).sum(),2)
-        self.df.loc[self.df[0] == 'M200', 9 ] = str(valor_total).replace('.', ',')                
+        self.df.loc[self.df[0] == 'M200', 9 ] = str(valor_total).replace('.', ',').strip()               
 
     def agregado_F600_M600(self):
 
         valor_total = round(self.df.loc[self.df[0] == 'F600', 9].str.replace(',', '.').replace('', '0').astype(float).sum(),2)
-        self.df.loc[self.df[0] == 'M600', 9 ] = str(valor_total).replace('.', ',')                
+        self.df.loc[self.df[0] == 'M600', 9 ] = str(valor_total).replace('.', ',').strip()                
 
     def removendo_m210_duplicada_e_ajustando_valores(self):
         df_m210 = self.df.loc[self.df[0] == 'M210']
@@ -409,14 +409,53 @@ class AlteracoesRegistros():
   
         [df_m210.__setitem__( i, df_m210.iloc[0,6] * 0.0065) for i in [10,15]]
 
-        [df_m210.__setitem__( i, df_m210[i].apply(lambda x: f"{x: .2f}".replace('.',',') for i in [2,3,6,10,15]))]
+        [df_m210.__setitem__(i, df_m210[i].apply(lambda x: f"{x: .2f}".replace('.', ',').strip())) for i in [2, 3, 6, 10, 15]]
 
 
         print(colorama.Fore.RED,'DF_M210 : =>   \n',df_m210,colorama.Fore.RESET)
 
-        #df_no_m210 = self.df[~df_m210]
-        #df_m210_unique = self.df[df_m210].drop_duplicates(subset=0, keep='first')
-        #self.df = pd.concat([df_no_m210, df_m210_unique]).sort_index().reset_index(drop=True)
+        df_no_m210 = self.df.loc[~self.df.index.isin(df_m210.index)]
+        df_m210_unique = df_m210.drop_duplicates(subset=0, keep='first')
+        self.df = pd.concat([df_no_m210, df_m210_unique]).sort_index().reset_index(drop=True)
 
 
+    def removendo_m610_duplicada_e_ajustando_valores(self):
 
+        df_m610 = self.df.loc[self.df[0] == 'M610']
+        df_m610[[2, 3, 6]] = df_m610[[2, 3, 6]].replace(',', '.', regex=True).astype(float)
+
+        [df_m610.__setitem__(i, df_m610[i].sum().round(2)) for i in [2, 3, 6]]
+  
+        [df_m610.__setitem__( i, df_m610.iloc[0,6] * 0.03) for i in [10,15]]
+
+        [df_m610.__setitem__(i, df_m610[i].apply(lambda x: f"{x: .2f}".replace('.', ',').strip())) for i in [2, 3, 6, 10, 15]]
+
+
+        print(colorama.Fore.RED,'df_m610 : =>   \n',df_m610,colorama.Fore.RESET)
+
+        df_m6210_no = self.df.loc[~self.df.index.isin(df_m610.index)]
+        df_m610_unique = df_m610.drop_duplicates(subset=0, keep='first')
+        self.df = pd.concat([df_m6210_no, df_m610_unique]).sort_index().reset_index(drop=True)
+
+    def valor_final_ultima_col_m210(self):
+
+        valor_base = self.df.loc[self.df[0] == 'M210', 10].str.replace(',', '.').replace('', '0').astype(float).sum() 
+        
+        somatorio = self.df.loc[self.df[0] == 'M210', 11].str.replace(',', '.').replace('', '0').astype(float).sum() 
+
+        subtracao = self.df.loc[self.df[0] == 'M210', 12].str.replace(',', '.').replace('', '0').astype(float).sum() 
+        valor_final = round(valor_base + somatorio - subtracao,2)
+
+        self.df.loc[self.df[0] == 'M210', 15] = str(valor_final).replace('.', ',').strip()
+
+    def valor_final_ultima_col_m610(self):
+ 
+         valor_base = self.df.loc[self.df[0] == 'M610', 10].str.replace(',', '.').replace('', '0').astype(float).sum() 
+         
+         somatorio = self.df.loc[self.df[0] == 'M610', 11].str.replace(',', '.').replace('', '0').astype(float).sum() 
+ 
+         subtracao = self.df.loc[self.df[0] == 'M610', 12].str.replace(',', '.').replace('', '0').astype(float).sum() 
+         valor_final = round(valor_base + somatorio - subtracao,2)
+ 
+         self.df.loc[self.df[0] == 'M610', 15] = str(valor_final).replace('.', ',').strip()
+ 
