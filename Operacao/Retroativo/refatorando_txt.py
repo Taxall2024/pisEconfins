@@ -185,6 +185,10 @@ class SpedProcessor(ab,ar):
         self.agregado_F600_M600()
 
         self.removendo_m210_duplicada_e_ajustando_valores()
+        self.removendo_m610_duplicada_e_ajustando_valores()
+
+        self.valor_final_ultima_col_m210()
+        self.valor_final_ultima_col_m610()
 
 
 
