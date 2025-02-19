@@ -34,7 +34,11 @@ class AlteracoesRegistros():
     
 
     def remove_A100_Col2_1(self):
-        print('---------------> Data frame Metodo Remove_A100_Col2_1 :    ',self.df)
+    
+        for i in range(len(self.df) - 1):
+            if ((self.df.iloc[i, 0] == 'A100') & (self.df.iloc[i, 2] == '1')) and self.df.iloc[i + 1, 0] == 'A170':
+                self.df = self.df.loc[self.df.index != i + 1] 
+
         self.df = self.df.loc[~((self.df[0] == 'A100') & (self.df[2] == '1'))]
 
 
