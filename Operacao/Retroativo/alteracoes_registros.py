@@ -34,10 +34,14 @@ class AlteracoesRegistros():
     
 
     def remove_A100_Col2_1(self):
-    
-        for i in range(len(self.df) - 1):
+        indices_para_remover = []
+        for i in range(len(self.df)- 2):
             if ((self.df.iloc[i, 0] == 'A100') & (self.df.iloc[i, 2] == '1')) and self.df.iloc[i + 1, 0] == 'A170':
-                self.df = self.df.loc[self.df.index != i + 1] 
+                if i + 1 < len(self.df) and self.df.iloc[i+1, 0] == 'A170':
+                    indices_para_remover.append(i+1)
+
+             
+        self.df = self.df.drop(indices_para_remover).reset_index(drop=True) 
 
         self.df = self.df.loc[~((self.df[0] == 'A100') & (self.df[2] == '1'))]
 
