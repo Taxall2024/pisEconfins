@@ -8,11 +8,11 @@ class AlteracoesRegistros():
         
             
 
-    def recaculcalndo_aliquota_A170(self):
+    def __recaculcalndo_aliquota_A170(self):
         self.df.loc[self.df[0] == 'A170', 10] = '0,65'
         self.df.loc[self.df[0] == 'A170', 14] = 3
-        self.calculos_aliquota(self.df,0.0065, 9, 11)
-        self.calculos_aliquota(self.df,0.03, 13, 15)
+        self.__calculos_aliquota(self.df,0.0065, 9, 11)
+        self.__calculos_aliquota(self.df,0.03, 13, 15)
         
         self.data = str(self.df.iloc[0, 5])
         self.df_apurado = self.df.copy()
@@ -20,7 +20,7 @@ class AlteracoesRegistros():
         # Retorna None para evitar renderização automática
         return self.df
 
-    def calculos_aliquota(self,df:pd.DataFrame,aliquota:float, base_calculo: int, atribuir_resultado: int):
+    def __calculos_aliquota(self,df:pd.DataFrame,aliquota:float, base_calculo: int, atribuir_resultado: int):
         mask_a170 = df[0] == 'A170'
         
         numeric_values = pd.to_numeric(df.loc[mask_a170, base_calculo].str.replace(',', '.'), errors='coerce')
@@ -33,7 +33,7 @@ class AlteracoesRegistros():
         return df
     
 
-    def remove_A100_Col2_1(self):
+    def __remove_A100_Col2_1(self):
         indices_para_remover = []
         for i in range(len(self.df)- 2):
             if ((self.df.iloc[i, 0] == 'A100') & (self.df.iloc[i, 2] == '1')) and self.df.iloc[i + 1, 0] == 'A170':
@@ -46,14 +46,14 @@ class AlteracoesRegistros():
         self.df = self.df.loc[~((self.df[0] == 'A100') & (self.df[2] == '1'))]
 
 
-    def remove_F100_Col1_0(self):    
+    def __remove_F100_Col1_0(self):    
         self.df = self.df.loc[~((self.df[0] == 'F100') & (self.df[1] == '0'))]
     
-    def zerar_C100_Col1_0(self):        
+    def __zerar_C100_Col1_0(self):        
         self.df.loc[((self.df[0] == 'C100')&(self.df[1] == '0')),25] = '0'
         self.df.loc[((self.df[0] == 'C100')&(self.df[1] == '0')),26] = '0'
 
-    def zerar_C170_Col1_0(self):
+    def __zerar_C170_Col1_0(self):
         for i in range(100):            
             self.df.loc[((self.df[0] == 'C170')&(self.df[1] == f'{i}')),35] = '0'
             self.df.loc[((self.df[0] == 'C170')&(self.df[1] == f'{i}')),33] = '0'
@@ -69,95 +69,95 @@ class AlteracoesRegistros():
                     
             self.df.loc[(self.df[0]=='C170') & (self.df[1]==f'{i}') & (self.df[30].str.contains('5')),30] = '70'
     
-    def remove_C396(self):       
+    def __remove_C396(self):       
         self.df = self.df.loc[~(self.df[0] == 'C396')]
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'C396'))]
 
-    def remove_C190(self):
+    def __remove_C190(self):
             
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'C190'))]
         self.df = self.df.loc[~(self.df[0] == 'C190')]
 
 
-    def remove_C395(self):
+    def __remove_C395(self):
             
         self.df = self.df.loc[~(self.df[0] == 'C395')]
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'C395'))]
         
-    def remove_D100(self):
+    def __remove_D100(self):
             
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'D100'))]
         self.df = self.df.loc[~(self.df[0] == 'D100')]
 
     
-    def remove_D500(self):
+    def __remove_D500(self):
 
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'D500'))]
         self.df = self.df.loc[~(self.df[0] == 'D500')]
 
-    def remove_F100(self):
+    def __remove_F100(self):
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'F100'))]
         self.df = self.df.loc[~(self.df[0] == 'F100')]
     
-    def remove_F120(self):
+    def __remove_F120(self):
 
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'F120'))]
         self.df = self.df.loc[~(self.df[0] == 'F120')]
         
-    def remove_F130(self):
+    def __remove_F130(self):
 
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'F130'))]
         self.df = self.df.loc[~(self.df[0] == 'F130')]
         
-    def remove_F150(self):
+    def __remove_F150(self):
                         
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'F150'))]
         self.df = self.df.loc[~(self.df[0] == 'F150')]
 
 
-    def remove_M100(self):
+    def __remove_M100(self):
 
         self.df = self.df.loc[~((self.df[0]== 'M100'))]
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'M100'))]
 
-    def rmeove_M105(self):
+    def __rmeove_M105(self):
 
         self.df = self.df.loc[~((self.df[0]== 'M105'))]
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'M105'))]
 
         
-    def remove_M500(self):
+    def __remove_M500(self):
             
         self.df = self.df.loc[~((self.df[0]== 'M500'))]
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'M500'))]
 
-    def remove_M505(self):
+    def __remove_M505(self):
 
         self.df = self.df.loc[~((self.df[0]== 'M505'))]
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'M505'))]
 
 
-    def alterandoa_M205_Col1_12(self):
+    def __alterandoa_M205_Col1_12(self):
         self.df.loc[self.df[0] == 'M205', 1] = '12'
 
 
-    def alterando_M100_col2_810902(self):
+    def __alterando_M100_col2_810902(self):
         self.df.loc[self.df[0] == 'M100', 2] = '810902'
     
-    def alterando_M210_Col7(self):
+    def __alterando_M210_Col7(self):
 
         self.df.loc[self.df[0] == 'M210', 7] = '0,65' 
 
     
-    def alterando_M605_Cols_1_2(self): 
+    def __alterando_M605_Cols_1_2(self): 
         self.df.loc[self.df[0] == 'M605', 1] = '12'
         self.df.loc[self.df[0] == 'M605', 2] = '217201'
         
-    def alterandoM610_Col_7(self):
+    def __alterandoM610_Col_7(self):
             self.df.loc[self.df[0] == 'M610', 7] = '3'
 
     
-    def moodificacoes_grupo_M100(self):
+    def __moodificacoes_grupo_M100(self):
 
         self.df.loc[self.df[0] == 'M100', 3] = 0
         self.df.loc[self.df[0] == 'M100', 7] = 0
@@ -165,7 +165,7 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M100', 13] = 0
         
 
-    def correcao_valores_Bloco_A100_e_A170(self):
+    def __correcao_valores_Bloco_A100_e_A170(self):
         
         for i in range(len(self.df) - 1):
             if self.df.iloc[i, 0] == 'A100' and self.df.iloc[i + 1, 0] == 'A170':
@@ -189,21 +189,21 @@ class AlteracoesRegistros():
                 self.df.iloc[i + 1, 15] = '0'
 
 
-    def alteracao_F600_Col_6(self):
+    def __alteracao_F600_Col_6(self):
         self.df.loc[self.df[0] == 'F600', 6] = '1'
     
     
-    def remove_C500(self):
+    def __remove_C500(self):
 
         self.df = self.df.loc[~(self.df[0] == 'C500')]
         self.df = self.df.loc[~((self.df[1] == 'C500')&(self.df[0] == '9900'))]
 
-    def remove_C50(self):
+    def __remove_C50(self):
 
         self.df = self.df.loc[~(self.df[0].str.contains('C50'))]
         self.df = self.df.loc[~((self.df[1].str.contains('C50'))&(self.df[0] == '9900'))]
         
-    def recalculando_aliquota_M200_e_M600(self):
+    def __recalculando_aliquota_M200_e_M600(self):
 
         def valor_m200():
             a100 = self.df.loc[self.df[0]=='A100']
@@ -249,7 +249,7 @@ class AlteracoesRegistros():
         
         
 
-    def recalculando_aliquota_M210_e_M610(self):
+    def __recalculando_aliquota_M210_e_M610(self):
 
         def recalculando_m210():
             m210_valor_total = self.df.loc[self.df[0] == 'M210', 6].str.replace(',', '.').replace('', '0').astype(float)
@@ -295,7 +295,7 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M610',1] = '51'
 
 
-    def zerando_valores_M500(self):
+    def __zerando_valores_M500(self):
         
         self.df.loc[self.df[0] == 'M500',3] = '0' 
         self.df.loc[self.df[0] == 'M500',7] = '0' 
@@ -307,7 +307,7 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M500',13] = '0' 
         self.df.loc[self.df[0] == 'M500',14] = '0' 
 
-    def zerando_valores_M600(self):
+    def __zerando_valores_M600(self):
 
         self.df.loc[self.df[0] == 'M100',3] = '0' 
         self.df.loc[self.df[0] == 'M100',7] = '0' 
@@ -321,15 +321,15 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M100',14] = '0' 
 
 
-    def recaculcalndo_aliquota_C170_Col2_0(self):
+    def __recaculcalndo_aliquota_C170_Col2_0(self):
 
-        self.df = self.calculos_aliquota_C170(self.df,0.0065, 15, 25)
-        self.df = self.calculos_aliquota_C170(self.df,0.03, 15, 26)
+        self.df = self.__calculos_aliquota_C170(self.df,0.0065, 15, 25)
+        self.df = self.__calculos_aliquota_C170(self.df,0.03, 15, 26)
         
         print('Função Recalculo C170')
 
 
-    def calculos_aliquota_C170(self,df:pd.DataFrame,aliquota:float, base_calculo: int, atribuir_resultado: int):
+    def __calculos_aliquota_C170(self,df:pd.DataFrame,aliquota:float, base_calculo: int, atribuir_resultado: int):
         mask_a170 = ((df[0] == 'C100')&(df[2] == '0'))
         print('-------> LOG => Mask C170')
         print(mask_a170)
@@ -343,7 +343,7 @@ class AlteracoesRegistros():
         return df
     
 
-    def alteracao_aliquota_C170(self):
+    def __alteracao_aliquota_C170(self):
 
         for i in range(len(self.df) - 1):
             if ((self.df.iloc[i, 0] == 'C100') & (self.df.iloc[i, 2] == '0')) and self.df.iloc[i + 1, 0] == 'C170':
@@ -365,19 +365,19 @@ class AlteracoesRegistros():
                     self.df.iloc[i + j, 26] = '0,65' 
                     self.df.iloc[i + j, 32] = '3' 
 
-    def remove_m205_repetida(self):
+    def __remove_m205_repetida(self):
         mask_m205 = self.df[0] == 'M205'
         df_no_m205 = self.df[~mask_m205]
         df_m205_unique = self.df[mask_m205].drop_duplicates(subset=0, keep='first')
         self.df = pd.concat([df_no_m205, df_m205_unique]).sort_index().reset_index(drop=True)
 
-    def remove_m605_repetida(self):
+    def __remove_m605_repetida(self):
         mask_m605 = self.df[0] == 'M605'
         df_no_m605 = self.df[~mask_m605]
         df_m605_unique = self.df[mask_m605].drop_duplicates(subset=0, keep='first')
         self.df = pd.concat([df_no_m605, df_m605_unique]).sort_index().reset_index(drop=True)
 
-    def somatorio_agragado_valores_c170_m200(self):
+    def __somatorio_agragado_valores_c170_m200(self):
         lista_de_valores = []
         
         for i in range(len(self.df) - 1):
@@ -388,7 +388,7 @@ class AlteracoesRegistros():
         valor_total = sum(lista_de_valores)
         self.df.loc[self.df[0] == 'M200', 8] = str(valor_total).replace('.', ',')
 
-    def somatorio_agragado_valores_c170_m600(self):
+    def __somatorio_agragado_valores_c170_m600(self):
 
         lista_de_valores = []
         
@@ -400,17 +400,17 @@ class AlteracoesRegistros():
         valor_total = sum(lista_de_valores)
         self.df.loc[self.df[0] == 'M600', 8] = str(valor_total).replace('.', ',')
                 
-    def agregado_F600_M200(self):
+    def __agregado_F600_M200(self):
 
         valor_total = round(self.df.loc[self.df[0] == 'F600', 8].str.replace(',', '.').replace('', '0').astype(float).sum(),2)
         self.df.loc[self.df[0] == 'M200', 9 ] = str(valor_total).replace('.', ',').strip()               
 
-    def agregado_F600_M600(self):
+    def __agregado_F600_M600(self):
 
         valor_total = round(self.df.loc[self.df[0] == 'F600', 9].str.replace(',', '.').replace('', '0').astype(float).sum(),2)
         self.df.loc[self.df[0] == 'M600', 9 ] = str(valor_total).replace('.', ',').strip()                
 
-    def removendo_m210_duplicada_e_ajustando_valores(self):
+    def __removendo_m210_duplicada_e_ajustando_valores(self):
         df_m210 = self.df.loc[self.df[0] == 'M210']
         df_m210[[2, 3, 6]] = df_m210[[2, 3, 6]].replace(',', '.', regex=True).astype(float)
 
@@ -428,7 +428,7 @@ class AlteracoesRegistros():
         self.df = pd.concat([df_no_m210, df_m210_unique]).sort_index().reset_index(drop=True)
 
 
-    def removendo_m610_duplicada_e_ajustando_valores(self):
+    def __removendo_m610_duplicada_e_ajustando_valores(self):
 
         df_m610 = self.df.loc[self.df[0] == 'M610']
         df_m610[[2, 3, 6]] = df_m610[[2, 3, 6]].replace(',', '.', regex=True).astype(float)
@@ -446,7 +446,7 @@ class AlteracoesRegistros():
         df_m610_unique = df_m610.drop_duplicates(subset=0, keep='first')
         self.df = pd.concat([df_m6210_no, df_m610_unique]).sort_index().reset_index(drop=True)
 
-    def valor_final_ultima_col_m210(self):
+    def __valor_final_ultima_col_m210(self):
 
         valor_base = self.df.loc[self.df[0] == 'M210', 10].str.replace(',', '.').replace('', '0').astype(float).sum() 
         
@@ -457,7 +457,7 @@ class AlteracoesRegistros():
 
         self.df.loc[self.df[0] == 'M210', 15] = str(valor_final).replace('.', ',').strip()
 
-    def valor_final_ultima_col_m610(self):
+    def __valor_final_ultima_col_m610(self):
  
          valor_base = self.df.loc[self.df[0] == 'M610', 10].str.replace(',', '.').replace('', '0').astype(float).sum() 
          
@@ -467,4 +467,73 @@ class AlteracoesRegistros():
          valor_final = round(valor_base + somatorio - subtracao,2)
  
          self.df.loc[self.df[0] == 'M610', 15] = str(valor_final).replace('.', ',').strip()
- 
+
+    def alterar_valores(self):
+        
+        self.__recaculcalndo_aliquota_A170()
+
+        # Remoççao com condicional
+        self.__remove_A100_Col2_1()
+        self.__remove_F100_Col1_0()
+
+        # Zerando valores
+        self.__zerar_C100_Col1_0()
+        self.__zerar_C170_Col1_0()
+
+        # Remoção
+        self.__remove_C396()
+        self.__remove_C190()
+        self.__remove_C395()
+        self.__remove_D100()
+        self.__remove_D500()
+        self.__remove_F100()
+        self.__remove_F120()
+        self.__remove_F130()
+        self.__remove_F150()
+        self.__remove_M100()
+        self.__rmeove_M105()
+        self.__remove_M500()
+        self.__remove_M505()
+
+        #Alterações com uma ou mais condicionais
+        self.__alterandoa_M205_Col1_12()
+        self.__alterando_M100_col2_810902()
+        self.__alterando_M210_Col7()
+        self.__alterando_M605_Cols_1_2()
+        self.__alterandoM610_Col_7()
+        self.__moodificacoes_grupo_M100()
+        self.__correcao_valores_Bloco_A100_e_A170()
+        self.__alteracao_F600_Col_6()
+       
+        # Remoção
+        self.__remove_C500()
+        self.__remove_C50()
+
+        #Correção e recaculos
+
+        self.__recalculando_aliquota_M200_e_M600()
+        self.__recalculando_aliquota_M210_e_M610()
+        self.__zerando_valores_M500()
+        self.__zerando_valores_M600()
+
+        # ''' Até aqui são as alterações que geraram os resultados dos arquivos para GE e Máxima '''
+
+        # '''  A partir daqui são alterações novas da Brasfort '''
+        
+        self.__recaculcalndo_aliquota_C170_Col2_0()
+        self.__alteracao_aliquota_C170()
+        self.__remove_m205_repetida()
+        self.__remove_m605_repetida()
+
+        self.__somatorio_agragado_valores_c170_m200()
+        self.__somatorio_agragado_valores_c170_m600()
+
+        self.__agregado_F600_M200()
+        self.__agregado_F600_M600()
+        try:
+            self.__removendo_m210_duplicada_e_ajustando_valores()
+            self.__removendo_m610_duplicada_e_ajustando_valores()
+        except:
+            pass
+        self.__valor_final_ultima_col_m210()
+        self.__valor_final_ultima_col_m610()

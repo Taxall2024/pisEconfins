@@ -123,74 +123,8 @@ class SpedProcessor(ab,ar):
         self.dados_willian()
         
         self.calculando_contadores_de_linhas()
-        self.recaculcalndo_aliquota_A170()
 
-        # Remoççao com condicional
-        self.remove_A100_Col2_1()
-        self.remove_F100_Col1_0()
-
-        # Zerando valores
-        self.zerar_C100_Col1_0()
-        self.zerar_C170_Col1_0()
-
-        # Remoção
-        self.remove_C396()
-        self.remove_C190()
-        self.remove_C395()
-        self.remove_D100()
-        self.remove_D500()
-        self.remove_F100()
-        self.remove_F120()
-        self.remove_F130()
-        self.remove_F150()
-        self.remove_M100()
-        self.rmeove_M105()
-        self.remove_M500()
-        self.remove_M505()
-
-        #Alterações com uma ou mais condicionais
-        self.alterandoa_M205_Col1_12()
-        self.alterando_M100_col2_810902()
-        self.alterando_M210_Col7()
-        self.alterando_M605_Cols_1_2()
-        self.alterandoM610_Col_7()
-        self.moodificacoes_grupo_M100()
-        self.correcao_valores_Bloco_A100_e_A170()
-        self.alteracao_F600_Col_6()
-       
-        # Remoção
-        self.remove_C500()
-        self.remove_C50()
-
-        #Correção e recaculos
-
-        self.recalculando_aliquota_M200_e_M600()
-        self.recalculando_aliquota_M210_e_M610()
-        self.zerando_valores_M500()
-        self.zerando_valores_M600()
-
-        # ''' Até aqui são as alterações que geraram os resultados dos arquivos para GE e Máxima '''
-
-        # '''  A partir daqui são alterações novas da Brasfort '''
-        
-        self.recaculcalndo_aliquota_C170_Col2_0()
-        self.alteracao_aliquota_C170()
-        self.remove_m205_repetida()
-        self.remove_m605_repetida()
-
-        self.somatorio_agragado_valores_c170_m200()
-        self.somatorio_agragado_valores_c170_m600()
-
-        self.agregado_F600_M200()
-        self.agregado_F600_M600()
-
-        self.removendo_m210_duplicada_e_ajustando_valores()
-        self.removendo_m610_duplicada_e_ajustando_valores()
-
-        self.valor_final_ultima_col_m210()
-        self.valor_final_ultima_col_m610()
-
-
+        self.alterar_valores()
 
         #Abs Method
         self.calculando_contadores_de_linhas()
