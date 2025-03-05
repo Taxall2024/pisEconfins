@@ -122,7 +122,6 @@ class SpedProcessor(ab,ar):
        # Abs Method 
         self.dados_willian()
         
-        self.calculando_contadores_de_linhas()
 
         self.alterar_valores()
 
