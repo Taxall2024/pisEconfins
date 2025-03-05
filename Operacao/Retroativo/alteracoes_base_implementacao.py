@@ -23,16 +23,21 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
     def calculando_contadores_de_linhas(self):
 
         contagem_99_00 = self.df.loc[self.df[0] == '9900', 0].value_counts()
+
+        contagem_A100 = self.df.loc[self.df[0] == 'A100',0].value_counts()
+        contagem_A170 = self.df.loc[self.df[0] == 'A170',0].value_counts()
         
+        self.df.loc[((self.df[0] == '9900') & (self.df[1] == 'A100')),2] = contagem_A100.values[0]
+        self.df.loc[((self.df[0] == '9900') & (self.df[1] == 'A170')),2] = contagem_A170.values[0]
 
         start_index = self.df.index[self.df[0].str.startswith('9001')].min()
         end_index = self.df.index[self.df[0].str.startswith('9999')].max()
 
-        # Fazer o slice do DataFrame usando os índices identificados
+
         subset_df = self.df.loc[start_index:end_index]
 
-        # Contar o número de linhas no subset
-        contagem_linhas_99_90 = len(subset_df)
+
+        contagem_linhas_99_90 = len(subset_df) -1 
 
         contagem_total_linhas = len(self.df) - 1
         

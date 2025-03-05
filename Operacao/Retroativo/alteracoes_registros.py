@@ -212,8 +212,6 @@ class AlteracoesRegistros():
             soma_a100 = round(a100[15].sum(),2)
             soma_a100 = str(soma_a100).replace('.',',')
 
-            print('>>>>>Sooma',soma_a100)
-
             return soma_a100
 
         def valor_m600():
@@ -290,6 +288,8 @@ class AlteracoesRegistros():
         self.df.iloc[self.df[0] == 'M610',10] = m610
 
 
+        self.df = self.df.loc[~((self.df[0]=='M210')&(self.df[1]=='02'))]
+        self.df = self.df.loc[~((self.df[0]=='M610')&(self.df[1]=='02'))]
 
         self.df.loc[self.df[0] == 'M210',1] = '51'
         self.df.loc[self.df[0] == 'M610',1] = '51'
@@ -326,7 +326,6 @@ class AlteracoesRegistros():
         self.df = self.__calculos_aliquota_C170(self.df,0.0065, 15, 25)
         self.df = self.__calculos_aliquota_C170(self.df,0.03, 15, 26)
         
-        print('Função Recalculo C170')
 
 
     def __calculos_aliquota_C170(self,df:pd.DataFrame,aliquota:float, base_calculo: int, atribuir_resultado: int):
@@ -411,6 +410,9 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M600', 9 ] = str(valor_total).replace('.', ',').strip()                
 
     def __removendo_m210_duplicada_e_ajustando_valores(self):
+        
+
+        
         df_m210 = self.df.loc[self.df[0] == 'M210']
         df_m210[[2, 3, 6]] = df_m210[[2, 3, 6]].replace(',', '.', regex=True).astype(float)
 
@@ -426,7 +428,6 @@ class AlteracoesRegistros():
         df_no_m210 = self.df.loc[~self.df.index.isin(df_m210.index)]
         df_m210_unique = df_m210.drop_duplicates(subset=0, keep='first')
         self.df = pd.concat([df_no_m210, df_m210_unique]).sort_index().reset_index(drop=True)
-
 
     def __removendo_m610_duplicada_e_ajustando_valores(self):
 
@@ -467,6 +468,27 @@ class AlteracoesRegistros():
          valor_final = round(valor_base + somatorio - subtracao,2)
  
          self.df.loc[self.df[0] == 'M610', 15] = str(valor_final).replace('.', ',').strip()
+
+    def __calculos_finais_M200(self):
+
+        self.df.loc[self.df[0] == 'M200',7] = self.df.loc[self.df[0] == 'M210',15].values
+
+        subtracao_m200 = self.df.loc[self.df[0]=='M200']
+        subtracao_m200[[7,8]] = subtracao_m200[[7,8]].replace(',', '.', regex=True).astype(float)
+        self.df.loc[self.df[0]=='M200',12] = np.where(subtracao_m200[7] - subtracao_m200[8] > 0,
+                                                      (subtracao_m200[7] - subtracao_m200[8]).apply(lambda x: f"{x:.2f}".replace('.', ',')),
+                                                      0)
+    def __calculos_finais_M600(self):
+
+        self.df.loc[self.df[0] == 'M600',7] = self.df.loc[self.df[0] == 'M610',15].values
+
+        subtracao_m600 = self.df.loc[self.df[0]=='M600']
+        subtracao_m600[[7,8]] = subtracao_m600[[7,8]].replace(',', '.', regex=True).astype(float)
+        self.df.loc[self.df[0]=='M600',12] = np.where(subtracao_m600[7] - subtracao_m600[8] > 0,
+                                                      (subtracao_m600[7] - subtracao_m600[8]).apply(lambda x: f"{x:.2f}".replace('.', ',')),
+                                                      0)
+
+
 
     def alterar_valores(self):
         
@@ -537,3 +559,8 @@ class AlteracoesRegistros():
             pass
         self.__valor_final_ultima_col_m210()
         self.__valor_final_ultima_col_m610()
+
+        # ''' A partir daqui serão alterações vindas da empresa Quality Max'''
+
+        self.__calculos_finais_M200()
+        self.__calculos_finais_M600()
