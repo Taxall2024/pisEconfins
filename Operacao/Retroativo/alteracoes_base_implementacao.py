@@ -26,14 +26,26 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
 
         contagem_99_00 = self.df.loc[self.df[0] == '9900', 0].value_counts()
 
-        contagem_A100 = self.df.loc[self.df[0] == 'A100',0].value_counts()
-        contagem_A170 = self.df.loc[self.df[0] == 'A170',0].value_counts()
-        contagem_A990 = contagem_A100.values[0] + contagem_A170.values[0] + 5
+
+        contagem_99_00 = self.df.loc[self.df[0] == '9900', 0].value_counts()
+
+        contagem_A100 = self.df.loc[self.df[0] == 'A100', 0].value_counts().get('A100', 0)
+        contagem_A170 = self.df.loc[self.df[0] == 'A170', 0].value_counts().get('A170', 0)
+        
+        contagem_A990 = contagem_A100 + contagem_A170 + 5
+
+        contagem_C100 = self.df.loc[self.df[0] == 'C100', 0].value_counts().get('C100', 0)
+        contagem_C170 = self.df.loc[self.df[0] == 'C170', 0].value_counts().get('C170', 0)
+        
+        contagem_C990 = contagem_C100 + contagem_C170 + 4
+
 
         self.df.loc[ self.df[0] == 'A990', 1] = contagem_A990        
+        self.df.loc[ self.df[0] == 'C990', 1] = contagem_C990        
+
         self.df.loc[ self.df[0] == '0990', 1] = int(self.df.loc[self.df[0] == '0990',1].values[0])  - 1       
-        self.df.loc[((self.df[0] == '9900') & (self.df[1] == 'A100')),2] = contagem_A100.values[0]
-        self.df.loc[((self.df[0] == '9900') & (self.df[1] == 'A170')),2] = contagem_A170.values[0]
+        self.df.loc[((self.df[0] == '9900') & (self.df[1] == 'A100')),2] = contagem_A100
+        self.df.loc[((self.df[0] == '9900') & (self.df[1] == 'A170')),2] = contagem_A170
 
         start_index = self.df.index[self.df[0].str.startswith('9001')].min()
         end_index = self.df.index[self.df[0].str.startswith('9999')].max()
