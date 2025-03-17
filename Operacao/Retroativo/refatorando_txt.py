@@ -95,7 +95,7 @@ class SpedProcessor(ab,ar):
 
             self.df = pd.DataFrame(data)
         except Exception as e:
-            log.error(f"Erro ao ler o arquivo: {e}")        
+            print(f"Erro ao ler o arquivo: {e}")        
 
         return self.df
 
@@ -106,8 +106,8 @@ class SpedProcessor(ab,ar):
         formatted_lines = df.apply(lambda row: '|' + '|'.join(row.dropna().astype(str)), axis=1)
             
         result = '\n'.join(formatted_lines)
-        if result.endswith('|'):
-                result = result[:-77]
+        #if result.endswith('|'):
+                #esult = result[:-77] + '|'
         return result    
     
     @log

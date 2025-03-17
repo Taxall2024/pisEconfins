@@ -32,16 +32,39 @@ class AlteracoesRegistros():
 
         return df
     
+    def __remove_C100_Col1_0(self):
+        indices_para_remover = []
+
+        for i in range(len(self.df) - 2):
+            if ((self.df.iloc[i, 0] == 'C100') & (self.df.iloc[i, 1] == '0')) and self.df.iloc[i + 1, 0] == 'C110':
+                if i + 1 < len(self.df) and self.df.iloc[i + 1, 0] == 'C110':
+                    indices_para_remover.append(i+1)
+
+        
+        for i in range(len(self.df) - 2):
+            if ((self.df.iloc[i, 0] == 'C100') & (self.df.iloc[i, 1] == '0')) and self.df.iloc[i + 1, 0] == 'C170':
+                if i + 1 < len(self.df) and self.df.iloc[i + 1, 0] == 'C170':
+                    indices_para_remover.append(i+2)
+                    indices_para_remover.append(i+1)
+
+        for i in range(len(self.df) - 2):
+            if self.df.iloc[i, 0] != 'C100' and self.df.iloc[i + 1, 0] == 'C170':
+                if i + 1 < len(self.df) and self.df.iloc[i + 1, 0] == 'C170':
+                    indices_para_remover.append(i+1)
+        
+        self.df = self.df.drop(indices_para_remover).reset_index(drop=True)
+
+        self.df = self.df.loc[~((self.df[0] == 'C100') & (self.df[2] == '1'))]
 
     def __remove_A100_Col2_1(self):
         indices_para_remover = []
-        for i in range(len(self.df)- 2):
+        for i in range(len(self.df) - 2):
             if ((self.df.iloc[i, 0] == 'A100') & (self.df.iloc[i, 2] == '1')) and self.df.iloc[i + 1, 0] == 'A170':
-                if i + 1 < len(self.df) and self.df.iloc[i+1, 0] == 'A170':
+                if i + 1 < len(self.df) and self.df.iloc[i + 1, 0] == 'A170':
+                    indices_para_remover.append(i+2)
                     indices_para_remover.append(i+1)
 
-             
-        self.df = self.df.drop(indices_para_remover).reset_index(drop=True) 
+        self.df = self.df.drop(indices_para_remover).reset_index(drop=True)
 
         self.df = self.df.loc[~((self.df[0] == 'A100') & (self.df[2] == '1'))]
 
@@ -488,6 +511,31 @@ class AlteracoesRegistros():
                                                       (subtracao_m600[7] - subtracao_m600[8]).apply(lambda x: f"{x:.2f}".replace('.', ',')),
                                                       0)
 
+    def __resolucao_M205_e_M200(self):
+        self.df.loc[self.df[0] == 'M200',8] = self.df.loc[self.df[0]=='M210',15].values[0]
+        value_m205 =  float(self.df.loc[self.df[0]=='M210',15].values[0].replace(',','.'))
+        value_m200 = float(self.df.loc[self.df[0] == 'M200',9].values[0].replace(',','.')) 
+        
+        if value_m205 > value_m200:
+            self.df.loc[self.df[0]=='M200',[11,12]] = round(value_m205 - value_m200,2)
+
+        if value_m205 < value_m200 or value_m205 == value_m200:
+            self.df.loc[self.df[0]=='M200',9] = self.df.loc[self.df[0]=='M200',8]
+            self.df.loc[self.df[0]=='M200',[11,12]] = 0
+            self.df = self.df.loc[~(self.df[0] == 'M205') ]
+
+    def __resolucao_M605_e_M600(self):
+        self.df.loc[self.df[0] == 'M600',8] = self.df.loc[self.df[0]=='M610',15].values[0]
+        value_m605 =  float(self.df.loc[self.df[0]=='M610',15].values[0].replace(',','.'))
+        value_M600 = float(self.df.loc[self.df[0] == 'M600',9].values[0].replace(',','.')) 
+        
+        if value_m605 > value_M600:
+            self.df.loc[self.df[0]=='M600',[11,12]] = round(value_m605 - value_M600,2)
+
+        if value_m605 < value_M600 or value_m605 == value_M600:
+            self.df.loc[self.df[0]=='M600',9] = self.df.loc[self.df[0]=='M600',8]
+            self.df.loc[self.df[0]=='M600',[11,12]] = 0
+            self.df = self.df.loc[~(self.df[0] == 'M605') ]
 
 
     def alterar_valores(self):
@@ -564,3 +612,6 @@ class AlteracoesRegistros():
 
         self.__calculos_finais_M200()
         self.__calculos_finais_M600()
+        self.__resolucao_M205_e_M200()
+        self.__resolucao_M605_e_M600()
+        self.__remove_C100_Col1_0()
