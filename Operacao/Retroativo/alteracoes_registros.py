@@ -49,8 +49,10 @@ class AlteracoesRegistros():
 
         for i in range(len(self.df) - 2):
             if self.df.iloc[i, 0] != 'C100' and self.df.iloc[i + 1, 0] == 'C170':
-                if i + 1 < len(self.df) and self.df.iloc[i + 1, 0] == 'C170':
-                    indices_para_remover.append(i+1)
+                for j in range(1, 51):
+                    if i + 1 < len(self.df) and self.df.iloc[i + j, 0] == 'C170':
+                        indices_para_remover.append(i+j)
+
         
         self.df = self.df.drop(indices_para_remover).reset_index(drop=True)
 

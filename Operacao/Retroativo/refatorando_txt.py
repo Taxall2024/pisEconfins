@@ -78,7 +78,6 @@ class SpedProcessor(ab,ar):
     def __init__(self):
         self.df = pd.DataFrame()
 
-    @log
     def lendoELimpandoDadosSped(self, file_path: os.path):
 
         try:
@@ -99,7 +98,6 @@ class SpedProcessor(ab,ar):
 
         return self.df
 
-    @log
     def devolvendo_txt(self,df:pd.DataFrame):
         
                 
@@ -110,7 +108,6 @@ class SpedProcessor(ab,ar):
                 #esult = result[:-77] + '|'
         return result    
     
-    @log
     def aplicado_alteradores(self):
         
         st.subheader('Arquivo Original')
@@ -131,7 +128,6 @@ class SpedProcessor(ab,ar):
         st.dataframe(self.df)
         return self.df
 
-    @log
     def main(self):
         
         uploaded_files = st.sidebar.file_uploader("Escolha os arquivos SPED", type=['txt'], accept_multiple_files=True)
