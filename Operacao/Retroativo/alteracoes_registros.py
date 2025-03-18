@@ -355,8 +355,7 @@ class AlteracoesRegistros():
 
     def __calculos_aliquota_C170(self,df:pd.DataFrame,aliquota:float, base_calculo: int, atribuir_resultado: int):
         mask_a170 = ((df[0] == 'C100')&(df[2] == '0'))
-        print('-------> LOG => Mask C170')
-        print(mask_a170)
+
         numeric_values = pd.to_numeric(df.loc[mask_a170, base_calculo].str.replace(',', '.'), errors='coerce')
 
         new_values = numeric_values * aliquota
@@ -539,12 +538,41 @@ class AlteracoesRegistros():
             self.df.loc[self.df[0]=='M600',[11,12]] = 0
             self.df = self.df.loc[~(self.df[0] == 'M605') ]
 
+    def __ajustando_duplicadas_F600(self):
+        indices_para_excluir_f600 = []
+        for i in range(len(self.df)):
+            for j in range(1,10):
+                if i + j >= len(self.df):
+                    break
+                if self.df.iloc[i , 0] == 'F600':
+                    if (self.df.iloc[i,5] == self.df.iloc[i+j,5]) and (self.df.iloc[i,7] == self.df.iloc[i+j,7]):
+                        self.df.iloc[i,[3,4,8,9]] = self.df.iloc[i,[3,4,8,9]].apply(lambda x: float(str(x).replace(',','.')))
+                        self.df.iloc[i + j,[3,4,8,9]] = self.df.iloc[i + j,[3,4,8,9]].apply(lambda x: float(str(x).replace(',','.')))
+
+                        self.df.iloc[i,[3,4,8,9]] = self.df.iloc[i,[3,4,8,9]] + self.df.iloc[i + j,[3,4,8,9]]
+                        
+                        self.df.iloc[i, [3, 4, 8, 9]] = self.df.iloc[i, [3, 4, 8, 9]].apply(lambda x: round (x, 2))
+
+                        self.df.iloc[i,[3,4,8,9]] = self.df.iloc[i,[3,4,8,9]].apply(lambda x: str(x).replace('.',','))
+                        self.df.iloc[i + j,[3,4,8,9]] = self.df.iloc[i + j,[3,4,8,9]].apply(lambda x: str(x).replace('.',','))
+
+                        indices_para_excluir_f600.append(i+j)
+
+        lista_sem_duplicadas = []
+        lista_sem_duplicadas = list(set(indices_para_excluir_f600)) 
+        print('>>>>>indices para excluir',indices_para_excluir_f600)
+        print('>>>>>Lista sem duplicadas',lista_sem_duplicadas)
+                   
+        self.df = self.df.drop(self.df.index[lista_sem_duplicadas]).reset_index(drop=True)
+
+
+
 
     def alterar_valores(self):
         
         self.__recaculcalndo_aliquota_A170()
 
-        # Remoççao com condicional
+        # Remoçao com condicional
         self.__remove_A100_Col2_1()
         self.__remove_F100_Col1_0()
 
@@ -617,3 +645,4 @@ class AlteracoesRegistros():
         self.__resolucao_M205_e_M200()
         self.__resolucao_M605_e_M600()
         self.__remove_C100_Col1_0()
+        self.__ajustando_duplicadas_F600()
