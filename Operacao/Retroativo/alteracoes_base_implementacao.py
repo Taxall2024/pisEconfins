@@ -34,13 +34,11 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
         
         contagem_A990 = contagem_A100 + contagem_A170 + 5
         
-        # ====== ======== =======
         start_index_C = self.df.index[self.df[0].str.startswith('C001')].max()
         end_index_C = self.df.index[self.df[0].str.startswith('C990')].min()
 
         values_lines_C = self.df.loc[start_index_C:end_index_C]
         contagem_C990 = len(values_lines_C)
-         #======== =========== 
 
         self.df.loc[ self.df[0] == 'A990', 1] = contagem_A990        
         self.df.loc[ self.df[0] == 'C990', 1] = contagem_C990        

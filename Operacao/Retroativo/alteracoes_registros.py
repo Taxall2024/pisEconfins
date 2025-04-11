@@ -246,14 +246,13 @@ class AlteracoesRegistros():
             soma_a100 = round(a100[17].sum(),2)
             soma_a100 = str(soma_a100).replace('.',',')
             
-            print('>>>>>Sooma',soma_a100)
 
             return soma_a100    
 
         m200 = valor_m200()
         m600 = valor_m600()
         self.df.loc[self.df[0] == 'M200',12] = m200
-        self.df.loc[self.df[0] == 'M200',8] = m200
+        self.df.loc[self.df[0] == 'M200',8] = m200 #Corrigir esse valor para ser a ultima col do m210 
         self.df.loc[self.df[0] == 'M200',1] ='0'
         self.df.loc[self.df[0] == 'M200',2] ='0' 
         self.df.loc[self.df[0] == 'M200',3] ='0' 
@@ -280,9 +279,6 @@ class AlteracoesRegistros():
 
             resultado = round(m210_valor_total * m210_aliquota, 2).iloc[0]  # Acesso ao primeiro elemento
             resultado = str(resultado).replace('.', ',')
-            print('------- Valor base m210', m210_valor_total)
-            print('--------Aliquota m210', m210_aliquota)
-            print('----------- Resultado Recalculo M210 :: >>', resultado)
             return resultado
 
         def recalculando_m610():
@@ -291,9 +287,6 @@ class AlteracoesRegistros():
 
             resultado = round(m610_valor_total * m610_aliquota, 2).iloc[0]  # Acesso ao primeiro elemento
             resultado = str(resultado).replace('.', ',')
-            print('------- Valor base m610', m610_valor_total)
-            print('--------Aliquota m610', m610_aliquota)
-            print('----------- Resultado Recalculo 610 :: >>', resultado)
             return resultado
 
         m210 = recalculando_m210()   
@@ -422,7 +415,42 @@ class AlteracoesRegistros():
     
         valor_total = sum(lista_de_valores)
         self.df.loc[self.df[0] == 'M600', 8] = str(valor_total).replace('.', ',')
-                
+
+    def __somatorio_agragado_valores_A170_m200(self):
+        lista_de_valores = []
+        
+        try:
+            for i in range(len(self.df) - 1):
+                if ((self.df.iloc[i, 0] == 'A100') & (self.df.iloc[i, 2] == '0')) and self.df.iloc[i + 1, 0] == 'A170':
+                    lista_de_valores.append(round(float(self.df.iloc[i + 1, 13].replace(',', '.')),2))
+        except Exception as e:
+            pass
+        if lista_de_valores is not None: 
+            self.valor_total_m200_col8 = sum(lista_de_valores)
+            self.df.loc[self.df[0] == 'M210', 3] = str(self.valor_total_m200_col8).replace('.', ',')
+        
+    def __valores_compilados_finais_m200(self):
+        self.df.loc[self.df[0] == 'M200',8] = self.df.loc[self.df[0]=='M210', 15].values[0]
+        self.df.loc[self.df[0] == 'M200',7] = ''
+         
+    def __correcao_de_capos_M700(self):
+        mask = (self.df.iloc[:, 0] == 'M700') & (self.df.iloc[:, 1] == '01')
+
+        # Atualiza os valores das colunas desejadas
+        self.df.loc[mask, 3] = ''
+        self.df.loc[mask, 4] = ''
+        self.df.loc[mask, 5] = self.df.loc[mask, 2]  # Correção do erro de atribuição
+        self.df.loc[mask, 1] = '51'
+
+    def __correcao_de_capos_M300(self):
+        mask = (self.df.iloc[:, 0] == 'M300') & (self.df.iloc[:, 1] == '01')
+
+        # Atualiza os valores das colunas desejadas
+        self.df.loc[mask, 3] = ''
+        self.df.loc[mask, 4] = ''
+        self.df.loc[mask, 5] = self.df.loc[mask, 2]  # Correção do erro de atribuição
+        self.df.loc[mask, 1] = '51'
+
     def __agregado_F600_M200(self):
 
         valor_total = round(self.df.loc[self.df[0] == 'F600', 8].str.replace(',', '.').replace('', '0').astype(float).sum(),2)
@@ -447,8 +475,6 @@ class AlteracoesRegistros():
         [df_m210.__setitem__(i, df_m210[i].apply(lambda x: f"{x: .2f}".replace('.', ',').strip())) for i in [2, 3, 6, 10, 15]]
 
 
-        print(colorama.Fore.RED,'DF_M210 : =>   \n',df_m210,colorama.Fore.RESET)
-
         df_no_m210 = self.df.loc[~self.df.index.isin(df_m210.index)]
         df_m210_unique = df_m210.drop_duplicates(subset=0, keep='first')
         self.df = pd.concat([df_no_m210, df_m210_unique]).sort_index().reset_index(drop=True)
@@ -465,7 +491,6 @@ class AlteracoesRegistros():
         [df_m610.__setitem__(i, df_m610[i].apply(lambda x: f"{x: .2f}".replace('.', ',').strip())) for i in [2, 3, 6, 10, 15]]
 
 
-        print(colorama.Fore.RED,'df_m610 : =>   \n',df_m610,colorama.Fore.RESET)
 
         df_m6210_no = self.df.loc[~self.df.index.isin(df_m610.index)]
         df_m610_unique = df_m610.drop_duplicates(subset=0, keep='first')
@@ -495,13 +520,14 @@ class AlteracoesRegistros():
 
     def __calculos_finais_M200(self):
 
-        self.df.loc[self.df[0] == 'M200',7] = self.df.loc[self.df[0] == 'M210',15].values
+        #self.df.loc[self.df[0] == 'M200',7] = self.df.loc[self.df[0] == 'M210',15].values
 
         subtracao_m200 = self.df.loc[self.df[0]=='M200']
-        subtracao_m200[[7,8]] = subtracao_m200[[7,8]].replace(',', '.', regex=True).astype(float)
-        self.df.loc[self.df[0]=='M200',12] = np.where(subtracao_m200[7] - subtracao_m200[8] > 0,
-                                                      (subtracao_m200[7] - subtracao_m200[8]).apply(lambda x: f"{x:.2f}".replace('.', ',')),
+        subtracao_m200[[8,9]] = subtracao_m200[[8,9]].replace(',', '.', regex=True).astype(float)
+        self.df.loc[self.df[0]=='M200',12] = np.where(subtracao_m200[8] - subtracao_m200[9] > 0,
+                                                      (subtracao_m200[8] - subtracao_m200[9]).apply(lambda x: f"{x:.2f}".replace('.', ',')),
                                                       0)
+   
     def __calculos_finais_M600(self):
 
         self.df.loc[self.df[0] == 'M600',7] = self.df.loc[self.df[0] == 'M610',15].values
@@ -518,12 +544,12 @@ class AlteracoesRegistros():
         value_m200 = float(self.df.loc[self.df[0] == 'M200',9].values[0].replace(',','.')) 
         
         if value_m205 > value_m200:
-            self.df.loc[self.df[0]=='M200',[11,12]] = round(value_m205 - value_m200,2)
+            self.df.loc[self.df[0]=='M200',[11,12]] = str(round(value_m205 - value_m200,2)).replace('.',',')
 
         if value_m205 < value_m200 or value_m205 == value_m200:
             self.df.loc[self.df[0]=='M200',9] = self.df.loc[self.df[0]=='M200',8]
             self.df.loc[self.df[0]=='M200',[11,12]] = 0
-            self.df = self.df.loc[~(self.df[0] == 'M205') ]
+            self.df = self.df.loc[~(self.df[0] == 'M205')]
 
     def __resolucao_M605_e_M600(self):
         self.df.loc[self.df[0] == 'M600',8] = self.df.loc[self.df[0]=='M610',15].values[0]
@@ -531,7 +557,7 @@ class AlteracoesRegistros():
         value_M600 = float(self.df.loc[self.df[0] == 'M600',9].values[0].replace(',','.')) 
         
         if value_m605 > value_M600:
-            self.df.loc[self.df[0]=='M600',[11,12]] = round(value_m605 - value_M600,2)
+            self.df.loc[self.df[0]=='M600',[11,12]] = str(round(value_m605 - value_M600,2)).replace('.',',')
 
         if value_m605 < value_M600 or value_m605 == value_M600:
             self.df.loc[self.df[0]=='M600',9] = self.df.loc[self.df[0]=='M600',8]
@@ -560,13 +586,23 @@ class AlteracoesRegistros():
 
         lista_sem_duplicadas = []
         lista_sem_duplicadas = list(set(indices_para_excluir_f600)) 
-        print('>>>>>indices para excluir',indices_para_excluir_f600)
-        print('>>>>>Lista sem duplicadas',lista_sem_duplicadas)
                    
         self.df = self.df.drop(self.df.index[lista_sem_duplicadas]).reset_index(drop=True)
 
+    def __ajuste_valores_base_m300_m210_m200(self):
 
+        valores = self.df.loc[self.df[0] == 'M300', 5]
+        valores = valores.str.replace(',', '.').astype(float)
+        somatorio_m300 = valores.sum()
+        self.df.loc[self.df[0]=='M210',14] = str(somatorio_m300).replace('.',',')
 
+        valores_m210 = self.df.loc[self.df[0] == 'M210', [10, 11, 12, 13, 14]]
+        valores_convertidos = valores_m210.applymap(lambda x: float(str(x).replace(',', '.')))
+        contas_finais_m210_somas = valores_convertidos[[10,11,14]].sum(axis=1).values[0] 
+        contas_finais_m210_subtração = valores_convertidos[[12,13]].sum(axis=1).values[0] 
+        valor_final = round(contas_finais_m210_somas - contas_finais_m210_subtração,2)
+        self.df.loc[self.df[0]=='M210', 15] = str(valor_final).replace('.',',')
+        print(colorama.Fore.CYAN,f' ======= LOG ====== > : {valor_final}',colorama.Fore.RESET)
 
     def alterar_valores(self):
         
@@ -640,9 +676,17 @@ class AlteracoesRegistros():
 
         # ''' A partir daqui serão alterações vindas da empresa Quality Max'''
 
-        self.__calculos_finais_M200()
         self.__calculos_finais_M600()
         self.__resolucao_M205_e_M200()
         self.__resolucao_M605_e_M600()
         self.__remove_C100_Col1_0()
         self.__ajustando_duplicadas_F600()
+
+        # ''' A partir daqui são novas adicionais feitas coma arquivo da Brasfort ''''
+        
+        self.__somatorio_agragado_valores_A170_m200()
+        self.__correcao_de_capos_M300()
+        self.__correcao_de_capos_M700()
+        self.__ajuste_valores_base_m300_m210_m200()
+        self.__valores_compilados_finais_m200()
+        self.__calculos_finais_M200()

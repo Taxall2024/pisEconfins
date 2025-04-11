@@ -7,7 +7,9 @@ import base64
 import functools
 import psutil
 import time
-import threading
+import warnings
+warnings.simplefilter(action='ignore', category=pd.errors.SettingWithCopyWarning)
+
 
 from alteracoes_base_implementacao import ImplementandoAlteracoesBase as ab
 from alteracoes_registros import AlteracoesRegistros as ar
@@ -117,14 +119,26 @@ class SpedProcessor(ab,ar):
         ab.__init__(self,self.df)
 
        # Abs Method 
-        self.dados_willian()
-        
+        try:
+            self.dados_willian()
+            print(Fore.GREEN,"======= LOG ====== > : Dados base do arquivo inserido",Fore.RESET)        
+        except Exception as e:
+            print(Fore.RED,f"======= LOG ====== > : Erro ao adicionar dados Base{e}",Fore.RESET)        
 
+
+        #try:
         self.alterar_valores()
+        #    print(Fore.GREEN,"======= LOG ====== > : Contas refeitas no registro",Fore.RESET)        
+        #except Exception as e:
+        #    print(Fore.RED,f"======= LOG ====== > : Erro ao refazer calculos {e}",Fore.RESET)        
 
-        #Abs Method
-        self.calculando_contadores_de_linhas()
-        
+        try:
+            #Abs Method        
+            self.calculando_contadores_de_linhas()
+            print(Fore.GREEN,"======= LOG ====== > : Alterando valores das linhas",Fore.RESET)        
+        except Exception as e :        
+            print(Fore.RED,f"======= LOG ====== > : Erro ao recalcular linhas , {e}",Fore.RESET)        
+
         st.dataframe(self.df)
         return self.df
 
@@ -208,5 +222,11 @@ if __name__ == '__main__':
     
     pisConfins = SpedProcessor()
     pisConfins.main()
+
+
+
+
+
+
 
 
