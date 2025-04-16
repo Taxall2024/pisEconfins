@@ -47,14 +47,14 @@ def log(func):
 zip_buffer = BytesIO()
 
 st.set_page_config(layout='wide')
-background_image ="Untitleddesign.jpg"
-st.markdown(
-     f"""
-     <iframe src="data:image/jpg;base64,{base64.b64encode(open(background_image, 'rb').read()).decode(
-
-    )}" style="width:4000px;height:3000px;position: absolute;top:-3vh;right:-1250px;opacity: 0.5;background-size: cover;background-position: center;"></iframe>
-     """,
-     unsafe_allow_html=True )
+#background_image ="Untitleddesign.jpg"
+#st.markdown(
+#     f"""
+#     <iframe src="data:image/jpg;base64,{base64.b64encode(open(background_image, 'rb').read()).decode(
+#
+#    )}" style="width:4000px;height:3000px;position: absolute;top:-3vh;right:-1250px;opacity: 0.5;background-size: cover;background-position: center;"></iframe>
+#     """,
+#     unsafe_allow_html=True )
 
 def tabelas_de_apuração(df):
     
@@ -126,11 +126,11 @@ class SpedProcessor(ab,ar):
             print(Fore.RED,f"======= LOG ====== > : Erro ao adicionar dados Base{e}",Fore.RESET)        
 
 
-        #try:
-        self.alterar_valores()
-        #    print(Fore.GREEN,"======= LOG ====== > : Contas refeitas no registro",Fore.RESET)        
-        #except Exception as e:
-        #    print(Fore.RED,f"======= LOG ====== > : Erro ao refazer calculos {e}",Fore.RESET)        
+        try:
+            self.alterar_valores()
+            print(Fore.GREEN,"======= LOG ====== > : Contas refeitas no registro",Fore.RESET)        
+        except Exception as e:
+            print(Fore.RED,f"======= LOG ====== > : Erro ao refazer calculos {e}",Fore.RESET)        
 
         try:
             #Abs Method        

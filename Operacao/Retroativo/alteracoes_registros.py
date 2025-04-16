@@ -277,7 +277,7 @@ class AlteracoesRegistros():
             m210_valor_total = self.df.loc[self.df[0] == 'M210', 6].str.replace(',', '.').replace('', '0').astype(float)
             m210_aliquota = 0.0065
 
-            resultado = round(m210_valor_total * m210_aliquota, 2).iloc[0]  # Acesso ao primeiro elemento
+            resultado = round(m210_valor_total * m210_aliquota, 2).iloc[0]  
             resultado = str(resultado).replace('.', ',')
             return resultado
 
@@ -285,12 +285,12 @@ class AlteracoesRegistros():
             m610_valor_total = self.df.loc[self.df[0] == 'M610', 6].str.replace(',', '.').replace('', '0').astype(float)
             m610_aliquota = 0.03
 
-            resultado = round(m610_valor_total * m610_aliquota, 2).iloc[0]  # Acesso ao primeiro elemento
+            resultado = round(m610_valor_total * m610_aliquota, 2).iloc[0]  
             resultado = str(resultado).replace('.', ',')
             return resultado
 
-        m210 = recalculando_m210()   
-        m610 = recalculando_m610()
+        m210 = recalculando_m210()    
+        m610 = recalculando_m610() 
 
         self.df.loc[self.df[0] == 'M210',10] = m210
         self.df.iloc[self.df[0] == 'M610',10] = m610
@@ -426,7 +426,7 @@ class AlteracoesRegistros():
         except Exception as e:
             pass
         if lista_de_valores is not None: 
-            self.valor_total_m200_col8 = sum(lista_de_valores)
+            self.valor_total_m200_col8 = round(sum(lista_de_valores),2)
             self.df.loc[self.df[0] == 'M210', 3] = str(self.valor_total_m200_col8).replace('.', ',')
         
     def __valores_compilados_finais_m200(self):
@@ -434,21 +434,76 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M200',7] = ''
          
     def __correcao_de_capos_M700(self):
+        self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M700'), 2] = (
+            self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M700')].iloc[:, 2]
+            .astype(str)
+            .str.replace(',', '.')
+            .astype(float).multiply(0.0065).div(0.0165).round(2).apply(lambda x: str(x).replace('.',','))
+        )
+        
+        m700_df = self.df[self.df.iloc[:, 0] == 'M700'].copy()
+
+        col_chave = m700_df.columns[6]
+        valores_duplicados = m700_df[col_chave][m700_df.duplicated(col_chave, keep=False)].unique()
+
+        lista_de_duplicadas_para_eliminar = []
+
+        for value in valores_duplicados:
+            m700_df = m700_df.loc[m700_df[6]==value]
+            
+            lista_de_duplicadas_para_eliminar.append(abs(~(m700_df.index[0])))
+
+            m700_df[2] = m700_df[2].str.replace(',','.').astype(float)
+            valor_final = str(round(sum(m700_df[2]),2)).replace('.',',')
+            self.df.loc[(self.df[0]=='M700')&(self.df[6]==value),[2,5]] = valor_final
+        
+        self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
+
+        m700_df = m700_df.loc
+
+
         mask = (self.df.iloc[:, 0] == 'M700') & (self.df.iloc[:, 1] == '01')
 
-        # Atualiza os valores das colunas desejadas
         self.df.loc[mask, 3] = ''
         self.df.loc[mask, 4] = ''
-        self.df.loc[mask, 5] = self.df.loc[mask, 2]  # Correção do erro de atribuição
+        self.df.loc[mask, 5] = self.df.loc[mask, 2] 
         self.df.loc[mask, 1] = '51'
 
     def __correcao_de_capos_M300(self):
+
+        self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M300'), 2] = (
+            self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M300')].iloc[:, 2]
+            .astype(str)
+            .str.replace(',', '.')
+            .astype(float).multiply(0.0065).div(0.0165).round(2).apply(lambda x: str(x).replace('.',','))
+        )
+        
+        m300_df = self.df[self.df.iloc[:, 0] == 'M300'].copy()
+
+        col_chave = m300_df.columns[6]
+        valores_duplicados = m300_df[col_chave][m300_df.duplicated(col_chave, keep=False)].unique()
+
+        lista_de_duplicadas_para_eliminar = []
+
+        for value in valores_duplicados:
+            m300_df = m300_df.loc[m300_df[6]==value]
+            
+            lista_de_duplicadas_para_eliminar.append(abs(~(m300_df.index[0])))
+
+            m300_df[2] = m300_df[2].str.replace(',','.').astype(float)
+            valor_final = str(round(sum(m300_df[2]),2)).replace('.',',')
+            self.df.loc[(self.df[0]=='M300')&(self.df[6]==value),[2,5]] = valor_final
+        
+        self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
+
+        m300_df = m300_df.loc
+
+
         mask = (self.df.iloc[:, 0] == 'M300') & (self.df.iloc[:, 1] == '01')
 
-        # Atualiza os valores das colunas desejadas
         self.df.loc[mask, 3] = ''
         self.df.loc[mask, 4] = ''
-        self.df.loc[mask, 5] = self.df.loc[mask, 2]  # Correção do erro de atribuição
+        self.df.loc[mask, 5] = self.df.loc[mask, 2] 
         self.df.loc[mask, 1] = '51'
 
     def __agregado_F600_M200(self):
@@ -604,6 +659,24 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0]=='M210', 15] = str(valor_final).replace('.',',')
         print(colorama.Fore.CYAN,f' ======= LOG ====== > : {valor_final}',colorama.Fore.RESET)
 
+    def __limpando_colunas_m230_e_re_calculando_aliquota(self):
+        self.df.loc[self.df[0]=='M230',[-2,-1]] = ''
+        self.df.loc[self.df[0]=='M230' , 4] = (self.df.loc[self.df[0]=='M230' , 3].str.replace(',','.')
+                                               .astype(float)
+                                               .multiply(0.0065)
+                                               .round(2)
+                                               .apply(lambda x: str(x).replace(',','.')))
+    def __limpando_colunas_m630_e_re_calculando_aliquota(self):
+        self.df.loc[self.df[0]=='M630',[-2,-1]] = ''
+        self.df.loc[self.df[0]=='M630' , 4] = (self.df.loc[self.df[0]=='M630' , 3].str.replace(',','.')
+                                               .astype(float)
+                                               .multiply(0.0065)
+                                               .round(2)
+                                               .apply(lambda x: str(x).replace(',','.')))
+
+
+
+
     def alterar_valores(self):
         
         self.__recaculcalndo_aliquota_A170()
@@ -685,6 +758,8 @@ class AlteracoesRegistros():
         # ''' A partir daqui são novas adicionais feitas coma arquivo da Brasfort ''''
         
         self.__somatorio_agragado_valores_A170_m200()
+        self.__limpando_colunas_m230_e_re_calculando_aliquota()
+        self.__limpando_colunas_m630_e_re_calculando_aliquota()
         self.__correcao_de_capos_M300()
         self.__correcao_de_capos_M700()
         self.__ajuste_valores_base_m300_m210_m200()
