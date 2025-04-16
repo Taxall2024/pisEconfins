@@ -16,7 +16,7 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
         self.df.loc[self.df[0] == '0100', 12] = 'NEGOCIOS@TAXALL.COM.BR'        
         
         self.df.loc[self.df[0] == '0110', 1] = '2'
-        self.df.loc[self.df[0] == '0110', 2] = '1'
+        self.df.loc[self.df[0] == '0110', 2] = ''
         self.df.loc[self.df[0] == '0110', 3] = '1'
 
         self.df = self.df.loc[self.df[0] != '0111']
@@ -32,7 +32,7 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
         contagem_A100 = self.df.loc[self.df[0] == 'A100', 0].value_counts().get('A100', 0)
         contagem_A170 = self.df.loc[self.df[0] == 'A170', 0].value_counts().get('A170', 0)
         
-        contagem_A990 = contagem_A100 + contagem_A170 + 5
+        contagem_A990 = contagem_A100 + contagem_A170 + 4
         
         start_index_C = self.df.index[self.df[0].str.startswith('C001')].max()
         end_index_C = self.df.index[self.df[0].str.startswith('C990')].min()
