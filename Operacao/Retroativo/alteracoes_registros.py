@@ -658,6 +658,7 @@ class AlteracoesRegistros():
 
     def __limpando_colunas_m230_e_re_calculando_aliquota(self):
         self.df.loc[self.df[0]=='M230',[5,6]] = ''
+
         self.df.loc[self.df[0]=='M230' , 4] = (self.df.loc[self.df[0]=='M230' , 3].str.replace(',','.')
                                                .astype(float)
                                                .multiply(0.0065)
@@ -673,28 +674,46 @@ class AlteracoesRegistros():
                                                .apply(lambda x: str(x).replace('.',',')))
 
     def __retirando_cnpjs_duplicados_m230(self):
-
+        # Filtra apenas os registros M230
         M230_df = self.df[self.df.iloc[:, 0] == 'M230'].copy()
 
-        col_chave = M230_df.columns[1]
+        if M230_df.empty:
+            return  # Nenhum registro M230 encontrado
+
+        col_chave = M230_df.columns[1]  # Segunda coluna (ex: CNPJ)
+        col_valor = M230_df.columns[2]  # Terceira coluna (valor em string com vírgula)
+
+        # Identifica valores duplicados
         valores_duplicados = M230_df[col_chave][M230_df.duplicated(col_chave, keep=False)].unique()
+        indices_para_remover = []
 
-        lista_de_duplicadas_para_eliminar = []
+        for chave in valores_duplicados:
+            duplicados = M230_df[M230_df[col_chave] == chave].copy()
 
-        for value in valores_duplicados:
-            M230_df = M230_df.loc[M230_df[1]==value]
-            
-            lista_de_duplicadas_para_eliminar.append(abs(~(M230_df.index[0])))
+            if duplicados.empty or len(duplicados) < 2:
+                continue  # Nada a fazer
 
-            M230_df[2] = M230_df[2].str.replace(',','.').astype(float)
-            valor_final = str(round(sum(M230_df[2]),2)).replace('.',',')
-            self.df.loc[(self.df[0]=='M230')&(self.df[6]==value),2] = valor_final
+            try:
+                # Converte valores para float
+                duplicados[col_valor] = duplicados[col_valor].str.replace(',', '.').astype(float)
+                valor_final = str(round(duplicados[col_valor].sum(), 2)).replace('.', ',')
+
+                # Atualiza valor somado no DataFrame original
+                self.df.loc[(self.df[0] == 'M230') & (self.df[6] == chave), 2] = valor_final
+
+                # Marca para remoção todas as duplicadas, exceto a primeira
+                indices_para_remover.extend(duplicados.index[1:])
+            except Exception as e:
+                print(f"Erro ao processar CNPJ duplicado '{chave}': {e}")
+
+        # Remove duplicados marcados
+        self.df = self.df.drop(index=indices_para_remover) 
         
-        self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
-
     def __retirando_cnpjs_duplicados_M630(self):
-
         M630_df = self.df[self.df.iloc[:, 0] == 'M630'].copy()
+
+        if M630_df.empty:
+            return
 
         col_chave = M630_df.columns[1]
         valores_duplicados = M630_df[col_chave][M630_df.duplicated(col_chave, keep=False)].unique()
@@ -702,18 +721,26 @@ class AlteracoesRegistros():
         lista_de_duplicadas_para_eliminar = []
 
         for value in valores_duplicados:
-            M630_df = M630_df.loc[M630_df[1]==value]
-            
-            lista_de_duplicadas_para_eliminar.append(abs(~(M630_df.index[0])))
+            linhas_duplicadas = M630_df[M630_df[col_chave] == value].copy()
 
-            M630_df[2] = M630_df[2].str.replace(',','.').astype(float)
-            valor_final = str(round(sum(M630_df[2]),2)).replace('.',',')
-            self.df.loc[(self.df[0]=='M630')&(self.df[6]==value),2] = valor_final
-        
-        self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
+            if linhas_duplicadas.empty or len(linhas_duplicadas) < 2:
+                continue  # Nada para somar/remover
 
+            try:
+                # Soma os valores da coluna 2 (deve estar como string com vírgula)
+                linhas_duplicadas[2] = linhas_duplicadas[2].str.replace(',', '.').astype(float)
+                valor_final = str(round(linhas_duplicadas[2].sum(), 2)).replace('.', ',')
 
+                # Atualiza no DataFrame original
+                self.df.loc[(self.df[0] == 'M630') & (self.df[6] == value), 2] = valor_final
 
+                # Remove todas exceto a primeira
+                indices_para_remover = linhas_duplicadas.index[1:]
+                lista_de_duplicadas_para_eliminar.extend(indices_para_remover)
+            except Exception as e:
+                print(f"Erro ao processar CNPJ duplicado '{value}': {e}")
+
+        self.df = self.df.drop(index=lista_de_duplicadas_para_eliminar)
 
     def alterar_valores(self):
         
