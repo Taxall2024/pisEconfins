@@ -656,8 +656,6 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0]=='M610', 15] = str(valor_final).replace('.',',')
         print(colorama.Fore.CYAN,f' ======= LOG ====== > : {valor_final}',colorama.Fore.RESET)
 
-   
-   
     def __ajuste_valores_base_m300_m210_m200(self):
 
         valores = self.df.loc[self.df[0] == 'M300', 5]
@@ -759,6 +757,15 @@ class AlteracoesRegistros():
 
         self.df = self.df.drop(index=lista_de_duplicadas_para_eliminar)
 
+    def __passando_valor_m600_para_m605(self):
+        self.df.loc[self.df[0]=='M605',3] = self.df.loc[self.df[0]=='M600',12]
+
+    def __passando_valor_m200_para_205(self):
+        self.df.loc[self.df[0]=='M205',3] = self.df.loc[self.df[0]=='M200',12]
+        
+
+
+
     def alterar_valores(self):
         
         self.__recaculcalndo_aliquota_A170()
@@ -850,3 +857,5 @@ class AlteracoesRegistros():
         self.__ajuste_valores_base_m300_m210_m200()
         self.__valores_compilados_finais_m200()
         self.__calculos_finais_M200()
+        self.__passando_valor_m600_para_m605()
+        self.__passando_valor_m200_para_205()
