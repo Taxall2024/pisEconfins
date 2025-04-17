@@ -641,6 +641,23 @@ class AlteracoesRegistros():
                    
         self.df = self.df.drop(self.df.index[lista_sem_duplicadas]).reset_index(drop=True)
 
+    def __ajuste_valores_base_M700_M610_m200(self):
+
+        valores = self.df.loc[self.df[0] == 'M700', 5]
+        valores = valores.str.replace(',', '.').astype(float)
+        somatorio_M700 = valores.sum()
+        self.df.loc[self.df[0]=='M610',14] = str(somatorio_M700).replace('.',',')
+
+        valores_M610 = self.df.loc[self.df[0] == 'M610', [10, 11, 12, 13, 14]]
+        valores_convertidos = valores_M610.applymap(lambda x: float(str(x).replace(',', '.')))
+        contas_finais_M610_somas = valores_convertidos[[10,11,14]].sum(axis=1).values[0] 
+        contas_finais_M610_subtração = valores_convertidos[[12,13]].sum(axis=1).values[0] 
+        valor_final = round(contas_finais_M610_somas - contas_finais_M610_subtração,2)
+        self.df.loc[self.df[0]=='M610', 15] = str(valor_final).replace('.',',')
+        print(colorama.Fore.CYAN,f' ======= LOG ====== > : {valor_final}',colorama.Fore.RESET)
+
+   
+   
     def __ajuste_valores_base_m300_m210_m200(self):
 
         valores = self.df.loc[self.df[0] == 'M300', 5]
@@ -829,6 +846,7 @@ class AlteracoesRegistros():
         self.__limpando_colunas_m630_e_re_calculando_aliquota()
         self.__correcao_de_capos_M300()
         self.__correcao_de_capos_M700()
+        self.__ajuste_valores_base_M700_M610_m200()
         self.__ajuste_valores_base_m300_m210_m200()
         self.__valores_compilados_finais_m200()
         self.__calculos_finais_M200()
