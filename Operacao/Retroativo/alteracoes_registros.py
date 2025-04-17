@@ -758,10 +758,10 @@ class AlteracoesRegistros():
         self.df = self.df.drop(index=lista_de_duplicadas_para_eliminar)
 
     def __passando_valor_m600_para_m605(self):
-        self.df.loc[self.df[0]=='M605',3] = self.df.loc[self.df[0]=='M600',12]
+        self.df.loc[self.df[0]=='M605',3] = self.df.loc[self.df[0]=='M600',12].values[0]
 
     def __passando_valor_m200_para_205(self):
-        self.df.loc[self.df[0]=='M205',3] = self.df.loc[self.df[0]=='M200',12]
+        self.df.loc[self.df[0]=='M205',3] = self.df.loc[self.df[0]=='M200',12].values[0]
         
 
 
