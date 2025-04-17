@@ -665,14 +665,15 @@ class AlteracoesRegistros():
                                                .astype(float)
                                                .multiply(0.0065)
                                                .round(2)
-                                               .apply(lambda x: str(x).replace(',','.')))
+                                               .apply(lambda x: str(x).replace('.',',')))
+    
     def __limpando_colunas_m630_e_re_calculando_aliquota(self):
         self.df.loc[self.df[0]=='M630',[-2,-1]] = ''
         self.df.loc[self.df[0]=='M630' , 4] = (self.df.loc[self.df[0]=='M630' , 3].str.replace(',','.')
                                                .astype(float)
                                                .multiply(0.0065)
                                                .round(2)
-                                               .apply(lambda x: str(x).replace(',','.')))
+                                               .apply(lambda x: str(x).replace('.',',')))
 
 
 
