@@ -660,7 +660,7 @@ class AlteracoesRegistros():
         print(colorama.Fore.CYAN,f' ======= LOG ====== > : {valor_final}',colorama.Fore.RESET)
 
     def __limpando_colunas_m230_e_re_calculando_aliquota(self):
-        self.df.loc[self.df[0]=='M230',[-2,-1]] = ''
+        self.df.loc[self.df[0]=='M230',[5,6]] = ''
         self.df.loc[self.df[0]=='M230' , 4] = (self.df.loc[self.df[0]=='M230' , 3].str.replace(',','.')
                                                .astype(float)
                                                .multiply(0.0065)
@@ -668,7 +668,7 @@ class AlteracoesRegistros():
                                                .apply(lambda x: str(x).replace('.',',')))
     
     def __limpando_colunas_m630_e_re_calculando_aliquota(self):
-        self.df.loc[self.df[0]=='M630',[-2,-1]] = ''
+        self.df.loc[self.df[0]=='M630',[5,6]] = ''
         self.df.loc[self.df[0]=='M630' , 4] = (self.df.loc[self.df[0]=='M630' , 3].str.replace(',','.')
                                                .astype(float)
                                                .multiply(0.0065)
