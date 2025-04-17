@@ -795,7 +795,7 @@ class AlteracoesRegistros():
         self.__remove_C395()
         self.__remove_D100()
         self.__remove_D500()
-        self.__remove_F100()
+        #self.__remove_F100()
         self.__remove_F120()
         self.__remove_F130()
         self.__remove_F150()
