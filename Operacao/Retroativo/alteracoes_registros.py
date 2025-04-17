@@ -459,8 +459,6 @@ class AlteracoesRegistros():
         
         self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
 
-        m700_df = m700_df.loc
-
 
         mask = (self.df.iloc[:, 0] == 'M700') & (self.df.iloc[:, 1] == '01')
 
@@ -496,7 +494,6 @@ class AlteracoesRegistros():
         
         self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
 
-        m300_df = m300_df.loc
 
 
         mask = (self.df.iloc[:, 0] == 'M300') & (self.df.iloc[:, 1] == '01')
@@ -675,6 +672,46 @@ class AlteracoesRegistros():
                                                .round(2)
                                                .apply(lambda x: str(x).replace('.',',')))
 
+    def __retirando_cnpjs_duplicados_m230(self):
+
+        M230_df = self.df[self.df.iloc[:, 0] == 'M230'].copy()
+
+        col_chave = M230_df.columns[1]
+        valores_duplicados = M230_df[col_chave][M230_df.duplicated(col_chave, keep=False)].unique()
+
+        lista_de_duplicadas_para_eliminar = []
+
+        for value in valores_duplicados:
+            M230_df = M230_df.loc[M230_df[1]==value]
+            
+            lista_de_duplicadas_para_eliminar.append(abs(~(M230_df.index[0])))
+
+            M230_df[2] = M230_df[2].str.replace(',','.').astype(float)
+            valor_final = str(round(sum(M230_df[2]),2)).replace('.',',')
+            self.df.loc[(self.df[0]=='M230')&(self.df[6]==value),2] = valor_final
+        
+        self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
+
+    def __retirando_cnpjs_duplicados_M630(self):
+
+        M630_df = self.df[self.df.iloc[:, 0] == 'M630'].copy()
+
+        col_chave = M630_df.columns[1]
+        valores_duplicados = M630_df[col_chave][M630_df.duplicated(col_chave, keep=False)].unique()
+
+        lista_de_duplicadas_para_eliminar = []
+
+        for value in valores_duplicados:
+            M630_df = M630_df.loc[M630_df[1]==value]
+            
+            lista_de_duplicadas_para_eliminar.append(abs(~(M630_df.index[0])))
+
+            M630_df[2] = M630_df[2].str.replace(',','.').astype(float)
+            valor_final = str(round(sum(M630_df[2]),2)).replace('.',',')
+            self.df.loc[(self.df[0]=='M630')&(self.df[6]==value),2] = valor_final
+        
+        self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
+
 
 
 
@@ -759,6 +796,8 @@ class AlteracoesRegistros():
         # ''' A partir daqui são novas adicionais feitas coma arquivo da Brasfort ''''
         
         self.__somatorio_agragado_valores_A170_m200()
+        self.__retirando_cnpjs_duplicados_M630()
+        self.__retirando_cnpjs_duplicados_m230()
         self.__limpando_colunas_m230_e_re_calculando_aliquota()
         self.__limpando_colunas_m630_e_re_calculando_aliquota()
         self.__correcao_de_capos_M300()
