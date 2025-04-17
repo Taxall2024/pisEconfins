@@ -680,7 +680,7 @@ class AlteracoesRegistros():
                                                .round(2)
                                                .apply(lambda x: str(x).replace('.',',')))
         
-        valor_total_m230 = str(round(self.df.loc[self.df[0]=='M230',4].str.replace(',','.')
+        valor_total_m230 = str(round(self.df.loc[self.df[0]=='M300',5].str.replace(',','.')
                                                                 .astype(float)
                                                                 .sum(),2)).replace('.',',')
         
@@ -693,11 +693,11 @@ class AlteracoesRegistros():
                                                .multiply(0.0065)
                                                .round(2)
                                                .apply(lambda x: str(x).replace('.',',')))
-        valor_total_m230 = str(round(self.df.loc[self.df[0]=='M630',4].str.replace(',','.')
+        valor_total_m630 = str(round(self.df.loc[self.df[0]=='M700',5].str.replace(',','.')
                                                                 .astype(float)
                                                                 .sum(),2)).replace('.',',')
         
-        self.df.loc[self.df[0]=='M610',13] = valor_total_m230                                           
+        self.df.loc[self.df[0]=='M610',13] = valor_total_m630                                           
 
     def __retirando_cnpjs_duplicados_m230(self):
         # Filtra apenas os registros M230
