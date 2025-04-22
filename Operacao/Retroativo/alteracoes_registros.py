@@ -429,6 +429,12 @@ class AlteracoesRegistros():
             self.valor_total_m200_col8 = round(sum(lista_de_valores),2)
             self.df.loc[self.df[0] == 'M210', 3] = str(self.valor_total_m200_col8).replace('.', ',')
         
+    def __valores_compilados_finais_m600(self):
+        self.df.loc[self.df[0] == 'M600',8] = self.df.loc[self.df[0]=='M610', 15].values[0]
+        
+        self.df.loc[self.df[0] == 'M600',7] = ''
+
+
     def __valores_compilados_finais_m200(self):
         self.df.loc[self.df[0] == 'M200',8] = self.df.loc[self.df[0]=='M210', 15].values[0]
         self.df.loc[self.df[0] == 'M200',7] = ''
@@ -614,6 +620,7 @@ class AlteracoesRegistros():
         if value_m605 < value_M600 or value_m605 == value_M600:
             self.df.loc[self.df[0]=='M600',9] = self.df.loc[self.df[0]=='M600',8]
             self.df.loc[self.df[0]=='M600',[11,12]] = 0
+            
             self.df = self.df.loc[~(self.df[0] == 'M605') ]
 
     def __ajustando_duplicadas_F600(self):
@@ -884,6 +891,7 @@ class AlteracoesRegistros():
         self.__ajuste_valores_base_M700_M610_m200()
         self.__ajuste_valores_base_m300_m210_m200()
         self.__valores_compilados_finais_m200()
+        self.__valores_compilados_finais_m600()
         self.__calculos_finais_M200()
         self.__calculos_finais_M600()
         self.__passando_valor_m600_para_m605()
