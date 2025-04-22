@@ -578,7 +578,12 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M200',8] = self.df.loc[self.df[0] == 'M210',15].values[0]
 
         subtracao_m200 = self.df.loc[self.df[0]=='M200']
-        subtracao_m200[[8,9]] = subtracao_m200[[8,9]].replace(',', '.', regex=True).astype(float)
+        subtracao_m200[[8, 9]] = (
+            subtracao_m200[[ 8,9]]
+            .replace(',', '.', regex=True)
+            .apply(pd.to_numeric, errors='coerce')
+        )          
+
         self.df.loc[self.df[0]=='M200',12] = np.where(subtracao_m200[8] - subtracao_m200[9] > 0,
                                                       (subtracao_m200[8] - subtracao_m200[9]).apply(lambda x: f"{x:.2f}".replace('.', ',')),
                                                       0)
@@ -588,9 +593,13 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M600',8] = self.df.loc[self.df[0] == 'M610',15].values[0]
 
         subtracao_m600 = self.df.loc[self.df[0]=='M600']
-        subtracao_m600[[7,8]] = subtracao_m600[[7,8]].replace(',', '.', regex=True).astype(float)
-        self.df.loc[self.df[0]=='M600',12] = np.where(subtracao_m600[7] - subtracao_m600[8] > 0,
-                                                      (subtracao_m600[7] - subtracao_m600[8]).apply(lambda x: f"{x:.2f}".replace('.', ',')),
+        subtracao_m600[[8, 9]] = (
+            subtracao_m600[[ 8,9]]
+            .replace(',', '.', regex=True)
+            .apply(pd.to_numeric, errors='coerce')
+        )        
+        self.df.loc[self.df[0]=='M600',12] = np.where(subtracao_m600[8] - subtracao_m600[9] > 0,
+                                                      (subtracao_m600[8] - subtracao_m600[9]).apply(lambda x: f"{x:.2f}".replace('.', ',')),
                                                       0)
 
     def __resolucao_M205_e_M200(self):
@@ -777,6 +786,8 @@ class AlteracoesRegistros():
 
     def __passando_valor_m200_para_205(self):
         self.df.loc[self.df[0]=='M205',3] = self.df.loc[self.df[0]=='M200',12].values[0]
+
+        print('LOOOOOOOOOOOOOOOOOOOOOOOG', self.df.loc[self.df[0]=='M200',12].values[0] )
         
     def __ajuste_valores_F100(self):
 
