@@ -680,7 +680,7 @@ class AlteracoesRegistros():
                                                .round(2)
                                                .apply(lambda x: str(x).replace('.',',')))
         
-        valor_total_m230 = str(round(self.df.loc[self.df[0]=='M300',5].str.replace(',','.')
+        valor_total_m230 = str(round(self.df.loc[self.df[0]=='M230',4].str.replace(',','.')
                                                                 .astype(float)
                                                                 .sum(),2)).replace('.',',')
         
@@ -693,7 +693,7 @@ class AlteracoesRegistros():
                                                .multiply(0.0065)
                                                .round(2)
                                                .apply(lambda x: str(x).replace('.',',')))
-        valor_total_m630 = str(round(self.df.loc[self.df[0]=='M700',5].str.replace(',','.')
+        valor_total_m630 = str(round(self.df.loc[self.df[0]=='M630',4].str.replace(',','.')
                                                                 .astype(float)
                                                                 .sum(),2)).replace('.',',')
         
@@ -774,6 +774,23 @@ class AlteracoesRegistros():
     def __passando_valor_m200_para_205(self):
         self.df.loc[self.df[0]=='M205',3] = self.df.loc[self.df[0]=='M200',12].values[0]
         
+    def __ajuste_valores_F100(self):
+
+        self.df.loc[self.df[0]=='F100',8] = '0,65'
+        self.df.loc[self.df[0]=='F100',12] = '3'
+        self.df.loc[self.df[0]=='F100',9] = (self.df.loc[self.df[0]=='F100',7]
+                                             .str.replace(',','.')
+                                             .astype(float)
+                                             .multiply(0.0065)
+                                             .round(2)
+                                             .apply(lambda x: str(x).replace('.',',')))
+        self.df.loc[self.df[0]=='F100',13] = (self.df.loc[self.df[0]=='F100',11]
+                                             .str.replace(',','.')
+                                             .astype(float)
+                                             .multiply(0.03)
+                                             .round(2)
+                                             .apply(lambda x: str(x).replace('.',',')))
+
 
 
 
@@ -795,7 +812,6 @@ class AlteracoesRegistros():
         self.__remove_C395()
         self.__remove_D100()
         self.__remove_D500()
-        #self.__remove_F100()
         self.__remove_F120()
         self.__remove_F130()
         self.__remove_F150()
@@ -870,3 +886,4 @@ class AlteracoesRegistros():
         self.__calculos_finais_M200()
         self.__passando_valor_m600_para_m605()
         self.__passando_valor_m200_para_205()
+        self.__ajuste_valores_F100()
