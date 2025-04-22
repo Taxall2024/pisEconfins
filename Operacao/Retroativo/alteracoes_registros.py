@@ -273,6 +273,7 @@ class AlteracoesRegistros():
 
     def __recalculando_aliquota_M210_e_M610(self):
 
+
         def recalculando_m210():
             m210_valor_total = self.df.loc[self.df[0] == 'M210', 6].str.replace(',', '.').replace('', '0').astype(float)
             m210_aliquota = 0.0065
@@ -299,12 +300,8 @@ class AlteracoesRegistros():
         self.df.iloc[self.df[0] == 'M610',15] = m610
 
         self.df.loc[self.df[0] == 'M205',2] = '810902'
-        self.df.loc[self.df[0] == 'M205',3] = m210
                 
-        self.df.loc[self.df[0] == 'M605',3] = m610
-
         self.df.iloc[self.df[0] == 'M610',10] = m610
-
 
         self.df = self.df.loc[~((self.df[0]=='M210')&(self.df[1]=='02'))]
         self.df = self.df.loc[~((self.df[0]=='M610')&(self.df[1]=='02'))]
@@ -431,7 +428,6 @@ class AlteracoesRegistros():
         
     def __valores_compilados_finais_m600(self):
         self.df.loc[self.df[0] == 'M600',8] = self.df.loc[self.df[0]=='M610', 15].values[0]
-        
         self.df.loc[self.df[0] == 'M600',7] = ''
 
 
@@ -439,6 +435,7 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M200',8] = self.df.loc[self.df[0]=='M210', 15].values[0]
         self.df.loc[self.df[0] == 'M200',7] = ''
          
+
     def __correcao_de_capos_M700(self):
         self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M700'), 2] = (
             self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M700')].iloc[:, 2]
