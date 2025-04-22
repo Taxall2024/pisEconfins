@@ -572,7 +572,7 @@ class AlteracoesRegistros():
 
     def __calculos_finais_M200(self):
 
-        self.df.loc[self.df[0] == 'M200',7] = self.df.loc[self.df[0] == 'M210',15].values[0]
+        self.df.loc[self.df[0] == 'M200',8] = self.df.loc[self.df[0] == 'M210',15].values[0]
 
         subtracao_m200 = self.df.loc[self.df[0]=='M200']
         subtracao_m200[[8,9]] = subtracao_m200[[8,9]].replace(',', '.', regex=True).astype(float)
@@ -582,7 +582,7 @@ class AlteracoesRegistros():
    
     def __calculos_finais_M600(self):
 
-        self.df.loc[self.df[0] == 'M600',7] = self.df.loc[self.df[0] == 'M610',15].values[0]
+        self.df.loc[self.df[0] == 'M600',8] = self.df.loc[self.df[0] == 'M610',15].values[0]
 
         subtracao_m600 = self.df.loc[self.df[0]=='M600']
         subtracao_m600[[7,8]] = subtracao_m600[[7,8]].replace(',', '.', regex=True).astype(float)
