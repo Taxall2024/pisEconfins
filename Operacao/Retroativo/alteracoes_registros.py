@@ -867,7 +867,6 @@ class AlteracoesRegistros():
 
         # ''' A partir daqui serão alterações vindas da empresa Quality Max'''
 
-        self.__calculos_finais_M600()
         self.__resolucao_M205_e_M200()
         self.__resolucao_M605_e_M600()
         self.__remove_C100_Col1_0()
@@ -886,5 +885,6 @@ class AlteracoesRegistros():
         self.__ajuste_valores_base_m300_m210_m200()
         self.__valores_compilados_finais_m200()
         self.__calculos_finais_M200()
+        self.__calculos_finais_M600()
         self.__passando_valor_m600_para_m605()
         self.__passando_valor_m200_para_205()
