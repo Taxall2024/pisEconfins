@@ -690,7 +690,7 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0]=='M630',[5,6]] = ''
         self.df.loc[self.df[0]=='M630' , 4] = (self.df.loc[self.df[0]=='M630' , 3].str.replace(',','.')
                                                .astype(float)
-                                               .multiply(0.0065)
+                                               .multiply(0.03)
                                                .round(2)
                                                .apply(lambda x: str(x).replace('.',',')))
         valor_total_m630 = str(round(self.df.loc[self.df[0]=='M630',4].str.replace(',','.')
