@@ -806,7 +806,9 @@ class AlteracoesRegistros():
         self.__zerar_C100_Col1_0()
         self.__zerar_C170_Col1_0()
 
+        
         # Remoção
+        self.__ajuste_valores_F100()
         self.__remove_C396()
         self.__remove_C190()
         self.__remove_C395()
@@ -886,4 +888,3 @@ class AlteracoesRegistros():
         self.__calculos_finais_M200()
         self.__passando_valor_m600_para_m605()
         self.__passando_valor_m200_para_205()
-        self.__ajuste_valores_F100()
