@@ -438,7 +438,7 @@ class AlteracoesRegistros():
             self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M700')].iloc[:, 2]
             .astype(str)
             .str.replace(',', '.')
-            .astype(float).multiply(0.0065).div(0.0165).round(2).apply(lambda x: str(x).replace('.',','))
+            .astype(float).multiply(0.03).div(0.076).round(2).apply(lambda x: str(x).replace('.',','))
         )
         
         m700_df = self.df[self.df.iloc[:, 0] == 'M700'].copy()
