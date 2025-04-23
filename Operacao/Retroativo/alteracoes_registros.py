@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import colorama
+import warnings
+warnings.simplefilter(action='ignore', category=pd.errors.SettingWithCopyWarning)
 class AlteracoesRegistros():
     
     def __init__(self,df):
@@ -335,14 +337,11 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M100',13] = '0' 
         self.df.loc[self.df[0] == 'M100',14] = '0' 
 
-
     def __recaculcalndo_aliquota_C170_Col2_0(self):
 
         self.df = self.__calculos_aliquota_C170(self.df,0.0065, 15, 25)
         self.df = self.__calculos_aliquota_C170(self.df,0.03, 15, 26)
         
-
-
     def __calculos_aliquota_C170(self,df:pd.DataFrame,aliquota:float, base_calculo: int, atribuir_resultado: int):
         mask_a170 = ((df[0] == 'C100')&(df[2] == '0'))
 
@@ -354,7 +353,6 @@ class AlteracoesRegistros():
         df.loc[mask_a170, atribuir_resultado] = new_values   
 
         return df
-    
 
     def __alteracao_aliquota_C170(self):
 
@@ -658,7 +656,7 @@ class AlteracoesRegistros():
 
         valores = self.df.loc[self.df[0] == 'M700', 5]
         valores = valores.str.replace(',', '.').astype(float)
-        somatorio_M700 = valores.sum()
+        somatorio_M700 = round(valores.sum(),2)
         self.df.loc[self.df[0]=='M610',14] = str(somatorio_M700).replace('.',',')
 
         valores_M610 = self.df.loc[self.df[0] == 'M610', [10, 11, 12, 13, 14]]
@@ -667,7 +665,6 @@ class AlteracoesRegistros():
         contas_finais_M610_subtração = valores_convertidos[[12,13]].sum(axis=1).values[0] 
         valor_final = round(contas_finais_M610_somas - contas_finais_M610_subtração,2)
         self.df.loc[self.df[0]=='M610', 15] = str(valor_final).replace('.',',')
-        print(colorama.Fore.CYAN,f' ======= LOG ====== > : {valor_final}',colorama.Fore.RESET)
 
     def __ajuste_valores_base_m300_m210_m200(self):
 
@@ -682,7 +679,6 @@ class AlteracoesRegistros():
         contas_finais_m210_subtração = valores_convertidos[[12,13]].sum(axis=1).values[0] 
         valor_final = round(contas_finais_m210_somas - contas_finais_m210_subtração,2)
         self.df.loc[self.df[0]=='M210', 15] = str(valor_final).replace('.',',')
-        print(colorama.Fore.CYAN,f' ======= LOG ====== > : {valor_final}',colorama.Fore.RESET)
 
     def __limpando_colunas_m230_e_re_calculando_aliquota(self):
         self.df.loc[self.df[0]=='M230',[5,6]] = ''
@@ -787,8 +783,6 @@ class AlteracoesRegistros():
     def __passando_valor_m200_para_205(self):
         self.df.loc[self.df[0]=='M205',3] = self.df.loc[self.df[0]=='M200',12].values[0]
 
-        print('LOOOOOOOOOOOOOOOOOOOOOOOG', self.df.loc[self.df[0]=='M200',12].values[0] )
-        
     def __ajuste_valores_F100(self):
 
         self.df.loc[self.df[0]=='F100',8] = '0,65'
@@ -811,96 +805,330 @@ class AlteracoesRegistros():
 
     def alterar_valores(self):
         
-        self.__recaculcalndo_aliquota_A170()
+        try:
+            self.__recaculcalndo_aliquota_A170()
 
-        # Remoçao com condicional
-        self.__remove_A100_Col2_1()
-        self.__remove_F100_Col1_0()
-
-        # Zerando valores
-        self.__zerar_C100_Col1_0()
-        self.__zerar_C170_Col1_0()
-
+        except Exception as e:
+            print(f"Erro no método{__name__} , favor verificar",e)       
         
-        # Remoção
-        self.__ajuste_valores_F100()
-        self.__remove_C396()
-        self.__remove_C190()
-        self.__remove_C395()
-        self.__remove_D100()
-        self.__remove_D500()
-        self.__remove_F120()
-        self.__remove_F130()
-        self.__remove_F150()
-        self.__remove_M100()
-        self.__rmeove_M105()
-        self.__remove_M500()
-        self.__remove_M505()
+        try:
+            
+            self.__remove_A100_Col2_1()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)    
+        
+        try:
+            self.__remove_F100_Col1_0()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)
+        # Zerando valores
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)  
+                
+        try:
+            self.__zerar_C100_Col1_0()
+        except Exception as e:
+         
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)     
 
+        try:
+            self.__zerar_C170_Col1_0()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)
+        
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       # Remoção
+        try:
+            self.__ajuste_valores_F100()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)
+        try:
+            self.__remove_C396()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__remove_C190()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__remove_C395()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__remove_D100()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__remove_D500()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__remove_F120()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__remove_F130()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__remove_F150()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__remove_M100()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__rmeove_M105()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__remove_M500()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)       
+        try:
+            self.__remove_M505()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no método{__name__} , favor verificar",colorama.Fore.RESET,e)
         #Alterações com uma ou mais condicionais
-        self.__alterandoa_M205_Col1_12()
-        self.__alterando_M100_col2_810902()
-        self.__alterando_M210_Col7()
-        self.__alterando_M605_Cols_1_2()
-        self.__alterandoM610_Col_7()
-        self.__moodificacoes_grupo_M100()
-        self.__correcao_valores_Bloco_A100_e_A170()
-        self.__alteracao_F600_Col_6()
-       
+   
+        
+        
+            
+        try:
+            self.__alterandoa_M205_Col1_12()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__alterando_M100_col2_810902()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__alterando_M210_Col7()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__alterando_M605_Cols_1_2()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__alterandoM610_Col_7()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__moodificacoes_grupo_M100()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__correcao_valores_Bloco_A100_e_A170()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__alteracao_F600_Col_6()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
         # Remoção
-        self.__remove_C500()
-        self.__remove_C50()
-
+        
+            
+        try:
+            self.__remove_C500()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__remove_C50()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
         #Correção e recaculos
 
-        self.__recalculando_aliquota_M200_e_M600()
-        self.__recalculando_aliquota_M210_e_M610()
-        self.__zerando_valores_M500()
-        self.__zerando_valores_M600()
-
+        
+            
+        try:
+            self.__recalculando_aliquota_M200_e_M600()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__recalculando_aliquota_M210_e_M610()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__zerando_valores_M500()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__zerando_valores_M600()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
         # ''' Até aqui são as alterações que geraram os resultados dos arquivos para GE e Máxima '''
 
         # '''  A partir daqui são alterações novas da Brasfort '''
         
-        self.__recaculcalndo_aliquota_C170_Col2_0()
-        self.__alteracao_aliquota_C170()
-        self.__remove_m205_repetida()
-        self.__remove_m605_repetida()
+        
+            
+        try:
+            self.__recaculcalndo_aliquota_C170_Col2_0()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__alteracao_aliquota_C170()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__remove_m205_repetida()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__remove_m605_repetida()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
 
-        self.__somatorio_agragado_valores_c170_m200()
-        self.__somatorio_agragado_valores_c170_m600()
-
-        self.__agregado_F600_M200()
-        self.__agregado_F600_M600()
+        
+        try:
+            self.__somatorio_agragado_valores_c170_m200()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
+        try:
+            self.__somatorio_agragado_valores_c170_m600()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
+            
+        try:
+            self.__agregado_F600_M200()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
+        try:
+            self.__agregado_F600_M600()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
+        
         try:
             self.__removendo_m210_duplicada_e_ajustando_valores()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
+        try:
             self.__removendo_m610_duplicada_e_ajustando_valores()
-        except:
-            pass
-        self.__valor_final_ultima_col_m210()
-        self.__valor_final_ultima_col_m610()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
+            
+        
+        try:
+            self.__valor_final_ultima_col_m210()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
+        try:
+            self.__valor_final_ultima_col_m610()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
 
-        # ''' A partir daqui serão alterações vindas da empresa Quality Max'''
+       # ''' A partir daqui serão alterações vindas da empresa Quality Max'''
 
-        self.__resolucao_M205_e_M200()
-        self.__resolucao_M605_e_M600()
-        self.__remove_C100_Col1_0()
-        self.__ajustando_duplicadas_F600()
-
+        
+        try:
+            self.__resolucao_M205_e_M200()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
+        try:
+            self.__resolucao_M605_e_M600()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
+        try:
+            self.__remove_C100_Col1_0()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
+        try:
+            self.__ajustando_duplicadas_F600()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__},favor verificar",e,colorama.Fore.RESET)
         # ''' A partir daqui são novas adicionais feitas coma arquivo da Brasfort ''''
         
-        self.__somatorio_agragado_valores_A170_m200()
-        self.__retirando_cnpjs_duplicados_M630()
-        self.__retirando_cnpjs_duplicados_m230()
-        self.__limpando_colunas_m230_e_re_calculando_aliquota()
-        self.__limpando_colunas_m630_e_re_calculando_aliquota()
-        self.__correcao_de_capos_M300()
-        self.__correcao_de_capos_M700()
-        self.__ajuste_valores_base_M700_M610_m200()
-        self.__ajuste_valores_base_m300_m210_m200()
-        self.__valores_compilados_finais_m200()
-        self.__valores_compilados_finais_m600()
-        self.__calculos_finais_M200()
-        self.__calculos_finais_M600()
-        self.__passando_valor_m600_para_m605()
-        self.__passando_valor_m200_para_205()
+        
+        try:
+            self.__somatorio_agragado_valores_A170_m200()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__retirando_cnpjs_duplicados_M630()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__retirando_cnpjs_duplicados_m230()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__limpando_colunas_m230_e_re_calculando_aliquota()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__limpando_colunas_m630_e_re_calculando_aliquota()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__correcao_de_capos_M300()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__correcao_de_capos_M700()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__ajuste_valores_base_M700_M610_m200()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__ajuste_valores_base_m300_m210_m200()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__valores_compilados_finais_m200()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__valores_compilados_finais_m600()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__calculos_finais_M200()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__calculos_finais_M600()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__passando_valor_m600_para_m605()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+        try:
+            self.__passando_valor_m200_para_205()
+        except Exception as e:
+            print(colorama.Fore.RED,f"======== LOG ====== > Erro no metodo {__name__}, favor verificar",e,colorama.Fore.RESET)
+
+
+

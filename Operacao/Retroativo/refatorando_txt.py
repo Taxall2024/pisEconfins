@@ -125,12 +125,7 @@ class SpedProcessor(ab,ar):
         except Exception as e:
             print(Fore.RED,f"======= LOG ====== > : Erro ao adicionar dados Base{e}",Fore.RESET)        
 
-
-        try:
-            self.alterar_valores()
-            print(Fore.GREEN,"======= LOG ====== > : Contas refeitas no registro",Fore.RESET)        
-        except Exception as e:
-            print(Fore.RED,f"======= LOG ====== > : Erro ao refazer calculos {e}",Fore.RESET)        
+        self.alterar_valores() 
 
         try:
             #Abs Method        

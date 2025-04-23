@@ -1,6 +1,7 @@
 from alteracoes_base import AlteracoesBase
 import pandas as pd
-
+import warnings
+warnings.simplefilter(action='ignore', category=pd.errors.SettingWithCopyWarning)
 
 class ImplementandoAlteracoesBase(AlteracoesBase):
     def dados_willian(self):
