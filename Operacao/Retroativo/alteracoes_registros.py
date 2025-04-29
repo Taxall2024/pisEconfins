@@ -442,33 +442,7 @@ class AlteracoesRegistros():
          
 
     def __correcao_de_capos_M700(self):
-        self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M700'), 2] = (
-            self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M700')].iloc[:, 2]
-            .astype(str)
-            .str.replace(',', '.')
-            .astype(float).multiply(0.03).div(0.076).round(2).apply(lambda x: str(x).replace('.',','))
-        )
-        
-        m700_df = self.df[self.df.iloc[:, 0] == 'M700'].copy()
 
-        col_chave = m700_df.columns[6]
-        valores_duplicados = m700_df[col_chave][m700_df.duplicated(col_chave, keep=False)].unique()
-
-        lista_de_duplicadas_para_eliminar = []
-
-        for value in valores_duplicados:
-            m700_df = m700_df.loc[m700_df[6]==value]
-
-            if m700_df.empty:
-                continue
-            
-            lista_de_duplicadas_para_eliminar.append(abs(~(m700_df.index[0])))
-
-            m700_df[2] = m700_df[2].str.replace(',','.').astype(float)
-            valor_final = str(round(sum(m700_df[2]),2)).replace('.',',')
-            self.df.loc[(self.df[0]=='M700')&(self.df[6]==value),[2,5]] = valor_final
-        
-        self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
 
 
         mask = (self.df.iloc[:, 0] == 'M700') & (self.df.iloc[:, 1] == '01')
@@ -478,10 +452,57 @@ class AlteracoesRegistros():
         self.df.loc[mask, 5] = self.df.loc[mask, 2] 
         self.df.loc[mask, 1] = '51'
 
+        
+
+        self.df.loc[(self.df.iloc[:, 1] == '51')&(self.df[0]=='M700'), 2] = (
+            self.df.loc[(self.df.iloc[:, 1] == '51')&(self.df[0]=='M700')].iloc[:, 2]
+            .astype(str)
+            .str.replace(',', '.')
+            .astype(float).multiply(0.03).div(0.076).round(2).apply(lambda x: str(x).replace('.',','))
+        )
+        
+        m700_df = self.df[self.df.iloc[:, 0] == 'M700'].copy()
+
+        col_chave = m700_df.columns[6]
+        valores_duplicados = m700_df[col_chave][m700_df.duplicated(col_chave, keep=False)].unique()
+        lista_de_duplicadas_para_eliminar = []
+
+        for value in valores_duplicados:
+            registros_duplicados = m700_df[m700_df[6] == value]
+
+            if registros_duplicados.empty:
+                continue
+
+            # Soma os valores da coluna 2
+            registros_duplicados[2] = registros_duplicados[2].str.replace(',', '.').astype(float)
+            valor_final = str(round(registros_duplicados[2].sum(), 2)).replace('.', ',')
+
+            # Atualiza os campos 2 e 5 com o valor final
+            self.df.loc[(self.df[0] == 'M700') & (self.df[6] == value), [2, 5]] = valor_final
+
+            # Marca para remoção todos os índices duplicados exceto o primeiro
+            indices_para_remover = registros_duplicados.index[1:]
+            lista_de_duplicadas_para_eliminar.extend(indices_para_remover)
+        
+
+        print(Fore.LIGHTCYAN_EX,f'Valores   duplicados {valores_duplicados}',Fore.RESET)
+        print(Fore.LIGHTCYAN_EX,f'Lista de indices para eliminar {lista_de_duplicadas_para_eliminar}',Fore.RESET)
+        self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
+
+
     def __correcao_de_capos_M300(self):
 
-        self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M300'), 2] = (
-            self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M300')].iloc[:, 2]
+        mask = (self.df.iloc[:, 0] == 'M300') & (self.df.iloc[:, 1] == '01')
+
+        self.df.loc[mask, 3] = ''
+        self.df.loc[mask, 4] = ''
+        self.df.loc[mask, 5] = self.df.loc[mask, 2] 
+        self.df.loc[mask, 1] = '51'
+
+       
+       
+        self.df.loc[(self.df.iloc[:, 1] == '51')&(self.df[0]=='M300'), 2] = (
+            self.df.loc[(self.df.iloc[:, 1] == '51')&(self.df[0]=='M300')].iloc[:, 2]
             .astype(str)
             .str.replace(',', '.')
             .astype(float)
@@ -499,28 +520,26 @@ class AlteracoesRegistros():
         lista_de_duplicadas_para_eliminar = []
 
         for value in valores_duplicados:
+            registros_duplicados = m300_df[m300_df[6] == value]
 
-            m300_df = m300_df.loc[m300_df[6]==value]
-
-            if m300_df.empty:
+            if registros_duplicados.empty:
                 continue
 
-            lista_de_duplicadas_para_eliminar.append(abs(~(m300_df.index[0])))
+            # Soma os valores da coluna 2
+            registros_duplicados[2] = registros_duplicados[2].str.replace(',', '.').astype(float)
+            valor_final = str(round(registros_duplicados[2].sum(), 2)).replace('.', ',')
 
-            m300_df[2] = m300_df[2].str.replace(',','.').astype(float)
-            valor_final = str(round(sum(m300_df[2]),2)).replace('.',',')
-            self.df.loc[(self.df[0]=='M300')&(self.df[6]==value),[2,5]] = valor_final
+            # Atualiza os campos 2 e 5 com o valor final
+            self.df.loc[(self.df[0] == 'M300') & (self.df[6] == value), [2, 5]] = valor_final
+
+            # Marca para remoção todos os índices duplicados exceto o primeiro
+            indices_para_remover = registros_duplicados.index[1:]
+            lista_de_duplicadas_para_eliminar.extend(indices_para_remover)
         
+
+        print(Fore.LIGHTCYAN_EX,f'Valores   duplicados {valores_duplicados}',Fore.RESET)
+        print(Fore.LIGHTCYAN_EX,f'Lista de indices para eliminar {lista_de_duplicadas_para_eliminar}',Fore.RESET)
         self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
-
-
-
-        mask = (self.df.iloc[:, 0] == 'M300') & (self.df.iloc[:, 1] == '01')
-
-        self.df.loc[mask, 3] = ''
-        self.df.loc[mask, 4] = ''
-        self.df.loc[mask, 5] = self.df.loc[mask, 2] 
-        self.df.loc[mask, 1] = '51'
 
     def __agregado_F600_M200(self):
 
@@ -731,12 +750,12 @@ class AlteracoesRegistros():
         M230_df = self.df[self.df.iloc[:, 0] == 'M230'].copy()
 
         if M230_df.empty:
-            return  # Nenhum registro M230 encontrado
+            return 
 
-        col_chave = M230_df.columns[1]  # Segunda coluna (ex: CNPJ)
-        col_valor = M230_df.columns[2]  # Terceira coluna (valor em string com vírgula)
+        col_chave = M230_df.columns[1]  
+        col_valor = M230_df.columns[2]  
 
-        # Identifica valores duplicados
+        
         valores_duplicados = M230_df[col_chave][M230_df.duplicated(col_chave, keep=False)].unique()
         indices_para_remover = []
 
@@ -744,17 +763,17 @@ class AlteracoesRegistros():
             duplicados = M230_df[M230_df[col_chave] == chave].copy()
 
             if duplicados.empty or len(duplicados) < 2:
-                continue  # Nada a fazer
+                continue  
 
             try:
-                # Converte valores para float
+                
                 duplicados[col_valor] = duplicados[col_valor].str.replace(',', '.').astype(float)
                 valor_final = str(round(duplicados[col_valor].sum(), 2)).replace('.', ',')
 
-                # Atualiza valor somado no DataFrame original
+                
                 self.df.loc[(self.df[0] == 'M230') & (self.df[6] == chave), 2] = valor_final
 
-                # Marca para remoção todas as duplicadas, exceto a primeira
+                
                 indices_para_remover.extend(duplicados.index[1:])
             except Exception as e:
                 print(f"Erro ao processar CNPJ duplicado '{chave}': {e}")
