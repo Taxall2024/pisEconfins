@@ -843,6 +843,12 @@ class AlteracoesRegistros():
     def alterar_valores(self):
         
         try:
+            self.__alterando_col8_col12_a170()
+        except Exception as e:
+            log_erro('__alterando_col8_col12_a170',e )
+
+
+        try:
             self.__recaculcalndo_aliquota_A170()
 
         except Exception as e:
@@ -1169,11 +1175,5 @@ class AlteracoesRegistros():
             self.__passando_valor_m200_para_205()
         except Exception as e:
             log_erro('__passando_valor_m200_para_205',e )
-
-        try:
-            self.__alterando_col8_col12_a170()
-        except Exception as e:
-            log_erro('__alterando_col8_col12_a170',e )
-
 
 
