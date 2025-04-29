@@ -442,23 +442,20 @@ class AlteracoesRegistros():
          
 
     def __correcao_de_capos_M700(self):
+        
 
-
+        self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M700'), 2] = (
+            self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M700')].iloc[:, 2]
+            .astype(str)
+            .str.replace(',', '.')
+            .astype(float).multiply(0.03).div(0.076).round(2).apply(lambda x: str(x).replace('.',','))
+        )
 
         mask = (self.df.iloc[:, 0] == 'M700') & (self.df.iloc[:, 1] == '01')
 
         self.df.loc[mask, 3] = ''
         self.df.loc[mask, 4] = ''
         self.df.loc[mask, 1] = '51'
-
-        
-
-        self.df.loc[(self.df.iloc[:, 1] == '51')&(self.df[0]=='M700'), 2] = (
-            self.df.loc[(self.df.iloc[:, 1] == '51')&(self.df[0]=='M700')].iloc[:, 2]
-            .astype(str)
-            .str.replace(',', '.')
-            .astype(float).multiply(0.03).div(0.076).round(2).apply(lambda x: str(x).replace('.',','))
-        )
         
         m700_df = self.df[self.df.iloc[:, 0] == 'M700'].copy()
 
@@ -491,14 +488,10 @@ class AlteracoesRegistros():
 
     def __correcao_de_capos_M300(self):
 
-        mask = (self.df.iloc[:, 0] == 'M300') & (self.df.iloc[:, 1] == '01')
 
-        self.df.loc[mask, 3] = ''
-        self.df.loc[mask, 4] = ''
-        self.df.loc[mask, 1] = '51'
        
-        self.df.loc[(self.df.iloc[:, 1] == '51')&(self.df[0]=='M300'), 2] = (
-            self.df.loc[(self.df.iloc[:, 1] == '51')&(self.df[0]=='M300')].iloc[:, 2]
+        self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M300'), 2] = (
+            self.df.loc[(self.df.iloc[:, 1] == '01')&(self.df[0]=='M300')].iloc[:, 2]
             .astype(str)
             .str.replace(',', '.')
             .astype(float)
@@ -508,6 +501,12 @@ class AlteracoesRegistros():
             .apply(lambda x: str(x).replace('.',','))
         )
         
+        mask = (self.df.iloc[:, 0] == 'M300') & (self.df.iloc[:, 1] == '01')
+
+        self.df.loc[mask, 3] = ''
+        self.df.loc[mask, 4] = ''
+        self.df.loc[mask, 1] = '51'
+
         m300_df = self.df[self.df.iloc[:, 0] == 'M300'].copy()
 
         col_chave = m300_df.columns[6]
