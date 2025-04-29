@@ -534,11 +534,12 @@ class AlteracoesRegistros():
             lista_de_duplicadas_para_eliminar.extend(indices_para_remover)
         
 
+        self.df.loc[mask, 5] = self.df.loc[mask, 2] 
+        
         print(Fore.LIGHTCYAN_EX,f'Valores   duplicados {valores_duplicados}',Fore.RESET)
         print(Fore.LIGHTCYAN_EX,f'Lista de indices para eliminar {lista_de_duplicadas_para_eliminar}',Fore.RESET)
         self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
 
-        self.df.loc[mask, 5] = self.df.loc[mask, 2] 
 
     def __agregado_F600_M200(self):
 
