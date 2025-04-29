@@ -836,7 +836,7 @@ class AlteracoesRegistros():
                                              .apply(lambda x: str(x).replace('.',',')))
 
     def __alterando_col8_col12_a170(self):
-        self.df.loc[(self.df[0]=='a170')&(self.df[8]=='02')&(self.df[12]=='02'),[8,12]] = '01'
+        self.df.loc[(self.df[0]=='A170')&(self.df[8]=='02')&(self.df[12]=='02'),[8,12]] = '01'
 
 
 
