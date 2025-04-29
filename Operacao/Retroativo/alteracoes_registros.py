@@ -835,6 +835,8 @@ class AlteracoesRegistros():
                                              .round(2)
                                              .apply(lambda x: str(x).replace('.',',')))
 
+    def __alterando_col8_col12_a170(self):
+        self.df.loc[(self.df[0]=='a170')&(self.df[8]=='02')&(self.df[12]=='02'),[8,12]] = '01'
 
 
 
@@ -1167,6 +1169,11 @@ class AlteracoesRegistros():
             self.__passando_valor_m200_para_205()
         except Exception as e:
             log_erro('__passando_valor_m200_para_205',e )
+
+        try:
+            self.__alterando_col8_col12_a170()
+        except Exception as e:
+            log_erro('__alterando_col8_col12_a170',e )
 
 
 
