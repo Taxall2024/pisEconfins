@@ -10,6 +10,7 @@ def log_erro(nome_metodo,e):
 
 
 class AlteracoesRegistros():
+
     
     def __init__(self,df):
         self.df = df
@@ -687,7 +688,7 @@ class AlteracoesRegistros():
 
         valores = self.df.loc[self.df[0] == 'M300', 5]
         valores = valores.str.replace(',', '.').astype(float)
-        somatorio_m300 = valores.sum()
+        somatorio_m300 = round(valores.sum(),2)
         self.df.loc[self.df[0]=='M210',14] = str(somatorio_m300).replace('.',',')
 
         valores_m210 = self.df.loc[self.df[0] == 'M210', [10, 11, 12, 13, 14]]
