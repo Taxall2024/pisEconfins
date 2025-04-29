@@ -483,7 +483,8 @@ class AlteracoesRegistros():
             indices_para_remover = registros_duplicados.index[1:]
             lista_de_duplicadas_para_eliminar.extend(indices_para_remover)
         
-        self.df.loc[mask, 5] = self.df.loc[mask, 2] 
+        mask2 = (self.df.iloc[:, 0] == 'M700') & (self.df.iloc[:, 1] == '51')
+        self.df.loc[mask, 5] = self.df.loc[mask2, 2] 
 
         print(Fore.LIGHTCYAN_EX,f'Valores   duplicados {valores_duplicados}',Fore.RESET)
         print(Fore.LIGHTCYAN_EX,f'Lista de indices para eliminar {lista_de_duplicadas_para_eliminar}',Fore.RESET)
@@ -534,8 +535,9 @@ class AlteracoesRegistros():
             lista_de_duplicadas_para_eliminar.extend(indices_para_remover)
         
 
-        self.df.loc[mask, 5] = self.df.loc[mask, 2] 
-        
+        mask2 = (self.df.iloc[:, 0] == 'M300') & (self.df.iloc[:, 1] == '51')
+        self.df.loc[mask, 5] = self.df.loc[mask2, 2] 
+
         print(Fore.LIGHTCYAN_EX,f'Valores   duplicados {valores_duplicados}',Fore.RESET)
         print(Fore.LIGHTCYAN_EX,f'Lista de indices para eliminar {lista_de_duplicadas_para_eliminar}',Fore.RESET)
         self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
