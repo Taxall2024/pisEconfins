@@ -61,7 +61,7 @@ class ImplementandoAlteracoesBase(AlteracoesBase):
         
         self.df.loc[self.df[0] == '9999', 1 ] = contagem_total_linhas
 
-        self.df.loc[(self.df[0] == '9900') & (self.df[1] == '9900'),2] = contagem_99_00.values[0]
+        self.df.loc[(self.df[0] == '9900') & (self.df[1] == '9900'),2] = contagem_99_00
 
         self.df.loc[(self.df[0] == '9990' ),1] = contagem_linhas_99_90
 

@@ -114,7 +114,7 @@ class SpedProcessor(ab,ar):
         
         st.subheader('Arquivo Original')
         st.dataframe(self.df)
-
+        
         ar.__init__(self,self.df)
         ab.__init__(self,self.df)
 
@@ -127,12 +127,12 @@ class SpedProcessor(ab,ar):
 
         self.alterar_valores() 
 
-        try:
+        #try:
             #Abs Method        
-            self.calculando_contadores_de_linhas()
-            print(Fore.GREEN,"======= LOG ====== > : Alterando valores das linhas",Fore.RESET)        
-        except Exception as e :        
-            print(Fore.RED,f"======= LOG ====== > : Erro ao recalcular linhas , {e}",Fore.RESET)        
+        self.calculando_contadores_de_linhas()
+        #    print(Fore.GREEN,"======= LOG ====== > : Alterando valores das linhas",Fore.RESET)        
+        #except Exception as e :        
+        #    print(Fore.RED,f"======= LOG ====== > : Erro ao recalcular linhas , {e}",Fore.RESET)        
 
         st.dataframe(self.df)
         return self.df
@@ -143,7 +143,7 @@ class SpedProcessor(ab,ar):
         
         tabela_original_lista = []
         tabela_de_apuracao_lista = []
-        
+    
         if uploaded_files:
 
 
