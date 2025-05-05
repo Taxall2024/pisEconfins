@@ -14,6 +14,7 @@ class AlteracoesRegistros():
     
     def __init__(self,df):
         self.df = df
+
         
             
 
@@ -130,9 +131,9 @@ class AlteracoesRegistros():
         self.df = self.df.loc[~(self.df[0] == 'D500')]
 
     def __remove_F100(self):
-        self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'F100'))]
-        self.df = self.df.loc[~(self.df[0] == 'F100')]
-    
+        #self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[6] != '01'))]
+        #self.df = self.df.loc[~(self.df[0] == 'F100')&(self.df[6] != '01')]
+        pass
     def __remove_F120(self):
 
         self.df = self.df.loc[~((self.df[0]== '9900')&(self.df[1] == 'F120'))]
@@ -318,6 +319,31 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M210',1] = '51'
         self.df.loc[self.df[0] == 'M610',1] = '51'
 
+    def __recalculando_m210_col6(self):
+        df_m210 = self.df.loc[self.df[0] == 'M210', [3, 4, 5]].copy()
+        df_m210 = df_m210.replace(',', '.', regex=True).astype(float)
+
+        resultado = (df_m210[3] + df_m210[4] - df_m210[5]).round(2)
+
+        resultado = resultado.astype(str).str.replace('.', ',', regex=False)
+
+        self.df.loc[self.df[0] == 'M210', 6] = resultado
+
+        print(Fore.LIGHTBLUE_EX, resultado, Fore.RESET)
+
+    def __recalculando_m610_col6(self):
+        df_M610 = self.df.loc[self.df[0] == 'M610', [3, 4, 5]].copy()
+        df_M610 = df_M610.replace(',', '.', regex=True).astype(float)
+
+        resultado = (df_M610[3] + df_M610[4] - df_M610[5]).round(2)
+
+        resultado = resultado.astype(str).str.replace('.', ',', regex=False)
+
+        self.df.loc[self.df[0] == 'M610', 6] = resultado
+
+        print(Fore.LIGHTBLUE_EX, resultado, Fore.RESET)
+
+
 
     def __zerando_valores_M500(self):
         
@@ -418,8 +444,11 @@ class AlteracoesRegistros():
         valor_total = sum(lista_de_valores)
         self.df.loc[self.df[0] == 'M600', 8] = str(valor_total).replace('.', ',')
 
-    def __somatorio_agragado_valores_A170_m200(self):
+    def __somatorio_agragado_valores_A170_m210_M610(self):
         lista_de_valores = []
+        
+        valor_F100 = self.df.loc[(self.df[0]=='F100')&(self.df[6]=='01'),7].copy()
+        valor_F100 = valor_F100.replace(',','.').astype(float).sum()
         
         try:
             for i in range(len(self.df) - 1):
@@ -428,9 +457,31 @@ class AlteracoesRegistros():
         except Exception as e:
             pass
         if lista_de_valores is not None: 
-            self.valor_total_m200_col8 = round(sum(lista_de_valores),2)
+            self.valor_total_m200_col8 = round(sum(lista_de_valores,valor_F100),2)
             self.df.loc[self.df[0] == 'M210', 3] = str(self.valor_total_m200_col8).replace('.', ',')
+            self.df.loc[self.df[0] == 'M610', 3] = str(self.valor_total_m200_col8).replace('.', ',')
+
+
+
+    def __somatorio_col2_M210_M610(self):
+        lista_de_valores = []
+
+        valor_F100 = self.df.loc[(self.df[0]=='F100')&(self.df[6]=='01'),7].copy()
+        valor_F100 = valor_F100.replace(',','.').astype(float).sum()
         
+        try:
+            for i in range(len(self.df) - 1):
+                if ((self.df.iloc[i, 0] == 'A100') & (self.df.iloc[i, 2] == '0')) and self.df.iloc[i + 1, 0] == 'A170':
+                    lista_de_valores.append(round(float(self.df.iloc[i + 1, 4].replace(',', '.')),2))
+        except Exception as e:
+            pass
+        if lista_de_valores is not None: 
+            self.valor_total_m210_col2 = round(sum(lista_de_valores,valor_F100),2)
+            self.df.loc[self.df[0] == 'M210', 2] = str(self.valor_total_m210_col2).replace('.', ',')
+            self.df.loc[self.df[0] == 'M610', 2] = str(self.valor_total_m210_col2).replace('.', ',')
+
+
+
     def __valores_compilados_finais_m600(self):
         self.df.loc[self.df[0] == 'M600',8] = self.df.loc[self.df[0]=='M610', 15].values[0]
         self.df.loc[self.df[0] == 'M600',7] = ''
@@ -554,6 +605,8 @@ class AlteracoesRegistros():
 
         
         df_m210 = self.df.loc[self.df[0] == 'M210']
+
+
         df_m210[[2, 3, 6]] = df_m210[[2, 3, 6]].replace(',', '.', regex=True).astype(float)
 
         [df_m210.__setitem__(i, df_m210[i].sum().round(2)) for i in [2, 3, 6]]
@@ -664,7 +717,7 @@ class AlteracoesRegistros():
 
     def __ajustando_duplicadas_F600(self):
         pass
-    
+
     def __ajuste_valores_base_M700_M610_m200(self):
 
         valores = self.df.loc[self.df[0] == 'M700', 5]
@@ -819,7 +872,14 @@ class AlteracoesRegistros():
 
 
     def alterar_valores(self):
-        
+
+       
+        try:
+            self.__remove_F100()
+        except Exception as e:
+            log_erro('__remove_F100',e )
+
+
         try:
             self.__alterando_col8_col12_a170()
         except Exception as e:
@@ -978,12 +1038,6 @@ class AlteracoesRegistros():
             self.__recalculando_aliquota_M200_e_M600()
         except Exception as e:
             log_erro('__recalculando_aliquota_M200_e_M600',e )
-            
-        try:
-            self.__recalculando_aliquota_M210_e_M610()
-        except Exception as e:
-            log_erro('__recalculando_aliquota_M210_e_M610',e )
-            
         try:
             self.__zerando_valores_M500()
         except Exception as e:
@@ -1042,12 +1096,50 @@ class AlteracoesRegistros():
             self.__removendo_m210_duplicada_e_ajustando_valores()
         except Exception as e:
             log_erro('__removendo_m210_duplicada_e_ajustando_valores',e )
+
         try:
             self.__removendo_m610_duplicada_e_ajustando_valores()
         except Exception as e:
             log_erro('__removendo_m610_duplicada_e_ajustando_valores',e )
-            
         
+
+
+        try:
+            self.__somatorio_col2_M210_M610()
+        except Exception as e:
+            log_erro('__somatorio_m210_col2',e )         
+
+
+        try:
+            self.__somatorio_agragado_valores_A170_m210_M610()
+        except Exception as e:
+            log_erro('__somatorio_agragado_valores_A170_m210',e )    
+
+
+
+        try:
+            self.__recalculando_m610_col6()
+        except Exception as e:
+            log_erro('__recalculando_m210_col6',e )
+        
+
+        try:
+            self.__recalculando_m210_col6()
+        except Exception as e:
+            log_erro('__recalculando_m210_col6',e )
+
+
+
+        try:
+            self.__recalculando_aliquota_M210_e_M610()
+        except Exception as e:
+            log_erro('__recalculando_aliquota_M210_e_M610',e )
+
+
+
+
+
+
         try:
             self.__valor_final_ultima_col_m210()
         except Exception as e:
@@ -1080,11 +1172,6 @@ class AlteracoesRegistros():
         
         
         try:
-            self.__somatorio_agragado_valores_A170_m200()
-        except Exception as e:
-            log_erro('__somatorio_agragado_valores_A170_m200',e )
-
-        try:
             self.__retirando_cnpjs_duplicados_M630()
         except Exception as e:
             log_erro('__retirando_cnpjs_duplicados_M630',e )
@@ -1114,6 +1201,7 @@ class AlteracoesRegistros():
         except Exception as e:
             log_erro('__correcao_de_capos_M700',e )
 
+
         try:
             self.__ajuste_valores_base_M700_M610_m200()
         except Exception as e:
@@ -1123,7 +1211,6 @@ class AlteracoesRegistros():
             self.__ajuste_valores_base_m300_m210_m200()
         except Exception as e:
             log_erro('__ajuste_valores_base_m300_m210_m200',e )
-
         try:
             self.__valores_compilados_finais_m200()
         except Exception as e:
