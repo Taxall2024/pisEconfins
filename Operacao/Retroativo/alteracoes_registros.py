@@ -663,30 +663,8 @@ class AlteracoesRegistros():
             self.df = self.df.loc[~(self.df[0] == 'M605') ]
 
     def __ajustando_duplicadas_F600(self):
-        indices_para_excluir_f600 = []
-        for i in range(len(self.df)):
-            for j in range(1,10):
-                if i + j >= len(self.df):
-                    break
-                if self.df.iloc[i , 0] == 'F600':
-                    if (self.df.iloc[i,5] == self.df.iloc[i+j,5]) and (self.df.iloc[i,7] == self.df.iloc[i+j,7]):
-                        self.df.iloc[i,[3,4,8,9]] = self.df.iloc[i,[3,4,8,9]].apply(lambda x: float(str(x).replace(',','.')))
-                        self.df.iloc[i + j,[3,4,8,9]] = self.df.iloc[i + j,[3,4,8,9]].apply(lambda x: float(str(x).replace(',','.')))
-
-                        self.df.iloc[i,[3,4,8,9]] = self.df.iloc[i,[3,4,8,9]] + self.df.iloc[i + j,[3,4,8,9]]
-                        
-                        self.df.iloc[i, [3, 4, 8, 9]] = self.df.iloc[i, [3, 4, 8, 9]].apply(lambda x: round (x, 2))
-
-                        self.df.iloc[i,[3,4,8,9]] = self.df.iloc[i,[3,4,8,9]].apply(lambda x: str(x).replace('.',','))
-                        self.df.iloc[i + j,[3,4,8,9]] = self.df.iloc[i + j,[3,4,8,9]].apply(lambda x: str(x).replace('.',','))
-
-                        indices_para_excluir_f600.append(i+j)
-
-        lista_sem_duplicadas = []
-        lista_sem_duplicadas = list(set(indices_para_excluir_f600)) 
-                   
-        self.df = self.df.drop(self.df.index[lista_sem_duplicadas]).reset_index(drop=True)
-
+        pass
+    
     def __ajuste_valores_base_M700_M610_m200(self):
 
         valores = self.df.loc[self.df[0] == 'M700', 5]
