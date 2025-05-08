@@ -268,7 +268,6 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M200',3] ='0' 
         self.df.loc[self.df[0] == 'M200',4] = '0'        
         self.df.loc[self.df[0] == 'M200',5] ='0' 
-        self.df.loc[self.df[0] == 'M200',9] ='0' 
                 
         self.df.loc[self.df[0] == 'M600',12] = m600
         self.df.loc[self.df[0] == 'M600',8] = m600
@@ -277,7 +276,6 @@ class AlteracoesRegistros():
         self.df.loc[self.df[0] == 'M600',3] = '0'
         self.df.loc[self.df[0] == 'M600',4] = '0'
         self.df.loc[self.df[0] == 'M600',5] = '0'
-        self.df.loc[self.df[0] == 'M600',9] = '0'
         
         
 
@@ -554,21 +552,24 @@ class AlteracoesRegistros():
             if len(grupo) <= 1:
                 continue
 
-            grupo[[col_names[3], col_names[4], col_names[9]]] = grupo[[col_names[3], col_names[4], col_names[9]]].apply(lambda col: col.astype(str).str.replace(',', '.').astype(float))
+            grupo[[col_names[3], col_names[4],col_names[8] ,col_names[9]]] = grupo[[col_names[3], col_names[4],col_names[8], col_names[9]]].apply(lambda col: col.astype(str).str.replace(',', '.').astype(float))
 
             soma_c3 = grupo[col_names[3]].sum()
             soma_c4 = grupo[col_names[4]].sum()
+            soma_c8 = grupo[col_names[8]].sum()
             soma_c9 = grupo[col_names[9]].sum()
 
             
 
             valor_c3 = str(round(soma_c3,2)).replace('.', ',')
             valor_c4 = str(round(soma_c4,2)).replace('.', ',')
+            valor_c8 = str(round(soma_c8,2)).replace('.', ',')
             valor_c9 = str(round(soma_c9,2)).replace('.', ',')
 
             idx_para_manter = grupo.index[0]
             self.df.loc[idx_para_manter, col_names[3]] = valor_c3
             self.df.loc[idx_para_manter, col_names[4]] = valor_c4
+            self.df.loc[idx_para_manter, col_names[8]] = valor_c8
             self.df.loc[idx_para_manter, col_names[9]] = valor_c9
 
             indices_para_remover.extend(grupo.index[1:])
