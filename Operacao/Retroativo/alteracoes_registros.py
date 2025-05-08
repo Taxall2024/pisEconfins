@@ -531,6 +531,46 @@ class AlteracoesRegistros():
 
         self.df = self.df.drop(lista_de_duplicadas_para_eliminar)
 
+    def __removendo_duplicadas_F600(self):
+
+        filtro_f600 = self.df[0] == 'F600'
+        f600_df = self.df[filtro_f600].copy()
+
+        colunas_chave = [7, 2]
+        col_names = self.df.columns
+
+        duplicados = f600_df[f600_df.duplicated(f600_df.columns[colunas_chave], keep=False)]
+
+        indices_para_remover = []
+
+        grupos = duplicados.groupby([col_names[7], col_names[2]])
+
+        for chave, grupo in grupos:
+            if len(grupo) <= 1:
+                continue
+
+            grupo[[col_names[3], col_names[4], col_names[9]]] = grupo[[col_names[3], col_names[4], col_names[9]]].apply(lambda col: col.astype(str).str.replace(',', '.').astype(float))
+
+            soma_c3 = grupo[col_names[3]].sum()
+            soma_c4 = grupo[col_names[4]].sum()
+            soma_c9 = grupo[col_names[9]].sum()
+
+            
+
+            valor_c3 = str(round(soma_c3,2)).replace('.', ',')
+            valor_c4 = str(round(soma_c4,2)).replace('.', ',')
+            valor_c9 = str(round(soma_c9,2)).replace('.', ',')
+
+            idx_para_manter = grupo.index[0]
+            self.df.loc[idx_para_manter, col_names[3]] = valor_c3
+            self.df.loc[idx_para_manter, col_names[4]] = valor_c4
+            self.df.loc[idx_para_manter, col_names[9]] = valor_c9
+
+            indices_para_remover.extend(grupo.index[1:])
+
+        self.df = self.df.drop(index=indices_para_remover)
+
+
 
     def __correcao_de_capos_M300(self):
 
@@ -1035,6 +1075,12 @@ class AlteracoesRegistros():
             self.__alteracao_F600_Col_6()
         except Exception as e:
             log_erro('.__alteracao_F600_Col_6',e )
+        # Remoção
+        
+        try:
+            self.__removendo_duplicadas_F600()
+        except Exception as e:
+            log_erro('.removendo_duplicadas_F600',e )
         # Remoção
         
             
